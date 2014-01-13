@@ -1,0 +1,59 @@
+xdusage-%VER%-%REL% install instructions
+
+Prerequisites:  sudo, and the perl modules DBI, DBD:: Pg (compiled with SSL 
+support), Getopt::Long, and Date::Manip.
+
+Note:  If you are building DBD::Pg with SSL support yourself, you must:
+		export POSTGRES_LIB="/usr/local/pgsql/lib -lssl -lcrypto"
+       before building.  See the INSTALLATION section of 
+	http://cpansearch.perl.org/src/TURNSTEP/DBD-Pg-2.19.3/README
+       for more details.
+
+
+
+xdusage can be installed in several simple steps:
+
+Note:  installation should be done by a non-privileged user.
+	(some sites have a convention of a "software" user that owns the 
+	 installed software).  The only step that requires privilege is 
+	editing /etc/sudoers.
+
+1) Get the latest xdusage package at:
+        http://software.teragrid.org/software/xdusage/latest/
+
+2) Untar the package:
+	tar -xzvf xdusage-%VER%-%REL%.tgz
+
+3) cd xdusage-%VER%-%REL%/bin
+
+4) run install.pl, giving as parameters the user that xdusage should run as, and the installation   directory:
+	./install.pl -user <not_a_root_user> -dir <full path to install dir>
+   Note:  xdusage should be run as a non-root user that does not map to an 
+	actual person.  This can be the "software" user.
+
+5) create the xdusage.admins file, listing, one per line, each user of the local
+   system who is an xdusage admin (admins are allowed to perform queries as
+   other users).  The xdusage.admins file should be placed in the install dir.
+
+6) edit /etc/sudoers to grant permission for everyone to run xdusage as the non_root user specified in 4) above.  This can be done by adding these two lines:
+
+Defaults!<full path to install dir>/xdusage.pl env_keep="USER XDUSAGE_INSTALL_DIR"
+ALL ALL=(<not_a_root_user>) NOPASSWD: <full path to install dir>/xdusage.pl
+
+On SLES11, you may need to use these lines instead, where <not_root_user> should probably be a new user created just for this one program:
+
+# XDUSAGE %VER% %REL%
+Defaults><not_root_user> env_keep="USER XDUSAGE_INSTALL_DIR"
+ALL ALL=(<not_root_user>) NOPASSWD: <full path to install dir>/xdusage.pl
+
+7) For each resource at your site that you are deploying xd_usage on, create a file called <full path to install dir>/resource_name that contains the corresponding XDCDB resource_name for that resource.
+
+8) edit <full path to install dir>/xdusage.pl
+    On the line:
+	 my $PASSWORD="xdusage";
+    replace xdusage with the actual password as obtained from the 
+    XSEDE SP Coordinator or XSEDE Operations Center.
+
+9) To facilitate incorporation of the target installation directory into users' PATHs, install a modules file for xdusage.  There is a sample file in <install dir>/xdusage.modules that can be copied to /usr/local/Modules/modulefiles/xdusage/%VER%-%REL% (or the appropriate location for your Modules installation) and marked as the default by specifying %VER%-%REL% in the associated /usr/local/Modules/modulefiles/xdusage/.version file.
+
+10) Look at the docs/Testing document for a sanity-check command line to run.

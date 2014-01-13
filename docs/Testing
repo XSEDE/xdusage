@@ -1,0 +1,43 @@
+
+After installing the xdusage scripts as described in the README, including
+adding the appropriate accounts to the xdusage.admins file, the tester should,
+using her own account, run the xdusage script, and look for reasonable output.
+
+===Test 1: Show tester's projects on current resource===
+
+Steps:
+   $ ./xdusage
+
+Results:
+* the output should look like the following:
+
+one or more stanzas of:
+
+Project: <project identifier>/<resource name> [""|status=inactive]
+PI: <name of PI>
+Allocation: <start date>/<end date>
+ Total=<size of allocation> Remaining=<amount remaining> Usage=<how much has been used> Jobs=<number of jobs>
+   <name of querying user> portal=<xsede portal name for user> usage=<personal usage> jobs=<personal number of jobs>
+
+Notes:
+* status=inactive appears on the Project: line if the project is no longer active; 
+* If the project is active, no "status=" will appear
+
+
+Then, from an account that is listed in xdusage.admins, the tester should
+perform Test 2:
+
+===Test 2: Query by another username===
+
+Prerequisites:
+* tester's account listed in xdusage.admins
+
+Steps:
+  $ env USER=<username> ./xdusage 
+
+Results:
+* output will be as in test 1 above, but with usage information for the user specified by $USER instead of the user performing the test
+
+Notes:
+* if the test user is not in xdusage.admins, this test should give //exactly// the same output as test 1 above, for the invoking user, not the one specified by $USER
+
