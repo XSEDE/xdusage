@@ -1,5 +1,61 @@
 xdusage-%VER%-%REL% install instructions
 
+This document describes two ways to install xdusage; the preferred way is to 
+use the new RPM, but the legacy method is described for systems that may still require it.
+
+Installing the xdusage RPM:
+
+1) Set your machine to trust the repository.
+	For the SDI software repository, 
+
+2) yum install xdusage
+
+NOTE:  this will install xdusage in /usr/local/xdusage-%VER%-%REL%.
+The rpm is relocatable, however, it does not appear to be possible to specify an install prefix with yum.  To install to a different prefix:
+     yum install yum-downloadonly
+     yum update xdusage -y --downloadonly --downloaddir=./
+     rpm -i --prefix=<INSTALL_DIR> ./xdusage-%VER%%REL%-1.noarch.rpm
+
+
+3) create the xdusage.admins file, listing, one per line, each user of the local
+   system who is an xdusage admin (admins are allowed to perform queries as
+   other users).  The xdusage.admins file should be placed in the install dir.
+
+4) edit /etc/sudoers to grant permission for everyone to run xdusage as the non_root user "xdusage" (created when the rpm was installed).  This can be done by adding the two lines from /usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
+
+On SLES11, you may need to use these lines instead, where <not_root_user> should probably be a new user created just for this one program:
+
+# XDUSAGE %VER% %REL%
+Defaults>xdusage env_keep="USER XDUSAGE_INSTALL_DIR"
+ALL ALL=(xdusage) NOPASSWD: <full path to install dir>/xdusage.pl
+
+
+5) For each resource at your site that you are deploying xd_usage on, create a file called <full path to install dir>/resource_name that contains the corresponding XDCDB resource_name for that resource.
+
+6) edit <full path to install dir>/xdusage.pl
+    On the line:
+	 my $PASSWORD="xdusage";
+    replace xdusage with the actual password as obtained from the 
+    XSEDE SP Coordinator or XSEDE Operations Center.
+
+7) To facilitate incorporation of the target installation directory into users' PATHs, install a modules file for xdusage.  There is a sample file in <install dir>/xdusage.modules that can be copied to /usr/local/Modules/modulefiles/xdusage/%VER%-%REL% (or the appropriate location for your Modules installation) and marked as the default by specifying %VER%-%REL% in the associated /usr/local/Modules/modulefiles/xdusage/.version file.
+
+8) Look at the docs/Testing document for a sanity-check command line to run.
+
+
+
+
+
+
+
+
+
+
+
+
+Installing from a tarball (Legacy install method):
+
+
 Prerequisites:  sudo, and the perl modules DBI, DBD:: Pg (compiled with SSL 
 support), Getopt::Long, and Date::Manip.
 
