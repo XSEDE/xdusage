@@ -67,6 +67,11 @@ Defaults!$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl env_keep="USER X
 ALL ALL=(<not_a_root_user>) NOPASSWD: $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl
 EOF
 
+#clean up relocation problems
+sed -i -e "s|/usr/local/xdusage-%VER%-%REL%|$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%|g" $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/xdusage
+sed -i -e "s|/usr/local/xdusage-%VER%-%REL%|$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%|g" $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/xdusage.modules
+
+
 %postun
 
 %changelog
