@@ -14,7 +14,7 @@ VER=$(cat VERSION)
 REL=$(cat RELEASE)
 
 HERE=`pwd`
-OUTDIR="tmp/xdusage-$VER-$REL/"
+OUTDIR="tmp/xdusage-$VER$REL/"
 
 if [ -e $OUTDIR ]; then
   echo "Previous '$OUTDIR/' directory found, delete it first"
@@ -27,8 +27,11 @@ cp -p VERSION RELEASE $OUTDIR/
 
 mkdir $OUTDIR/bin
 mkdir $OUTDIR/docs
+mkdir $OUTDIR/sbin
 
-FILES=$(find bin docs -type f ! -path \*CVS\*)
+FILES=$(find bin docs -type f ! -path \*\.svn\*)
+FILES="$FILES sbin/xdusage.spec sbin/buildrpm"
+echo $FILES
 for i in $FILES;do
   iout=$(echo $i | sed 's/\.in$//')
   sed -e "s,%VER%,$VER,g" \
@@ -39,10 +42,11 @@ done
 mv $OUTDIR/docs/README $OUTDIR/INSTALL
  man $OUTDIR/docs/xdusage.1 >$OUTDIR/docs/xdusage.manpage
 chmod +x $OUTDIR/bin/install.pl
+chmod +x $OUTDIR/sbin/buildrpm
 
 #cd $OUTDIR
 #tar -czf $PKG-$VER-$REL.tgz bin/* docs/* 
 #cd $HERE
 cd tmp
-tar -czvf $PKG-$VER-$REL.tgz $PKG-$VER-$REL
+tar -czvf $PKG-$VER$REL.tgz $PKG-$VER$REL
 cd $HERE

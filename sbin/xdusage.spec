@@ -1,18 +1,18 @@
 Name:           xdusage
 %global _name %(tr - _ <<< %{name})
 Version:        %VER%%REL%
-Release:        1%{?dist}
+Release:        1
 Summary:        xdusage- displays usage information for XSEDE projects
 
 Group:          System Environment/Libraries
+BuildArch: noarch
+Prefix:		/usr/local
 License:        ASL 2.0
 URL:            http://www.xsede.org/
-Source:		xdusage-%VER%-%REL%.tgz
+Source:		xdusage-%VER%%REL%.tgz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:    perl-Getopt-Long
 Requires:    perl-Date-Manip
-Requires:    perl-DBI-DBD
 Requires:    perl-DBD-Pg
 Requires(pre): shadow-utils
 
@@ -42,28 +42,30 @@ exit 0
 %build
 
 %install
-./install.pl -user xdusage -dir /usr/local/xdusage-%VER%-%REL%
+cd bin
+mkdir -p %{buildroot}/usr/local/xdusage-1.1r0
+./install.pl -user xdusage -dir /usr/local/xdusage-%VER%-%REL% -buildroot %{buildroot}
+#touch sudoers files so they'll exist
+touch %{buildroot}/usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
 
 %files
-/usr/local/xdusage-%VER%-%REL%/bin/install.pl
-/usr/local/xdusage-%VER%-%REL%/bin/xdusage.pl
+/usr/local/xdusage-%VER%-%REL%/xdusage.pl
 /usr/local/xdusage-%VER%-%REL%/xdusage
-/usr/local/xdusage-%VER%-%REL%/docs/Admin
-/usr/local/xdusage-%VER%-%REL%/docs/Testing
-/usr/local/xdusage-%VER%-%REL%/docs/xdusage.1
-/usr/local/xdusage-%VER%-%REL%/docs/xdusage.manpage
+/usr/local/xdusage-%VER%-%REL%/Admin
+/usr/local/xdusage-%VER%-%REL%/xdusage.1
+/usr/local/xdusage-%VER%-%REL%/xdusage.manpage
 /usr/local/xdusage-%VER%-%REL%/INSTALL
-/usr/local/xdusage-%VER%-%REL%/RELEASE
-/usr/local/xdusage-%VER%-%REL%/VERSION
 /usr/local/xdusage-%VER%-%REL%/xdusage.modules
 /usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
-/usr/local/xdusage-%VER%-%REL%/xdusage.sudoers.sles11
 
 %clean
 
 %post
 #echo sudoers to files
-echo -e 'Defaults!$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl env_keep="USER XDUSAGE_INSTALL_DIR" \n ALL ALL=(<not_a_root_user>) NOPASSWD: $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl' >$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/xdusage.sudoers
+cat <<EOF > $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/xdusage.sudoers
+Defaults!$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl env_keep="USER XDUSAGE_INSTALL_DIR"
+ALL ALL=(<not_a_root_user>) NOPASSWD: $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl
+EOF
 
 %postun
 

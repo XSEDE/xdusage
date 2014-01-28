@@ -8,10 +8,12 @@ use warnings;
 
 my $username = "";
 my $instdir = "";
+my $buildroot = "";
 my $help = 0;
 
 my $result = GetOptions ("username=s"	=> \$username,
 		      "dir=s"		=> \$instdir,
+		      "buildroot=s"	=> \$buildroot,
 		      "help|?"		=> \$help);
 pod2usage(1) if $help;
 
@@ -28,17 +30,33 @@ if (!$instdir){
     chomp ($instdir = <>);
 }
 
-unless(-e $instdir or mkdir $instdir) {
-	die "Unable to create $instdir\n";
+if (!$buildroot){
+	unless(-e $instdir or mkdir $instdir) {
+	    die "Unable to create $instdir\n";
+	}
+}else{
+	unless(-e $buildroot."/".$instdir or mkdir $buildroot."/".$instdir){
+	    die "Unable to create $buildroot."/".$instdir\n";
+	}
 }
+
 print "$instdir/xdusage\n";
-my $file = "$instdir/xdusage";
+my $file;
+if ($buildroot){
+$file = "$buildroot/$instdir/xdusage";
+}else{
+$file = "$instdir/xdusage";
+}
 open (WRAPPERFILE, '>', $file) or die "couldn't open: $!";
 print WRAPPERFILE "#!/bin/bash\nRUNAS=\'$username\'\nXDUSAGE_INSTALL_DIR=\'$instdir\'\nexport XDUSAGE_INSTALL_DIR \n#echo \$XDUSAGE_INSTALL_DIR \nRUNCMD=\"\${XDUSAGE_INSTALL_DIR}/xdusage.pl\"\n/usr/bin/sudo -u \${RUNAS} USER=\${USER} XDUSAGE_INSTALL_DIR=\${XDUSAGE_INSTALL_DIR} \${RUNCMD} \$*\n";
 close WRAPPERFILE;
 chmod 0755, $file or die "Couldn't chmod $file: $!";
 
-$file = "$instdir/xdusage.modules";
+if ($buildroot){
+ $file = "$buildroot/$instdir/xdusage.modules";
+}else{
+ $file = "$instdir/xdusage.modules";
+}
 open (SAMPLEMODULE, '>', $file) or die "couldn't open: $!";
 print SAMPLEMODULE "#%Module\n";
 print SAMPLEMODULE "# \$Copyright\n";
@@ -70,9 +88,26 @@ print SAMPLEMODULE "setenv         XDUSAGE_INSTALL_DIR   \$xdusage_instdir\n";
 close (SAMPLEMODULE);
 
 #system (cp xdusage.pl $instdir);
-my $instfile="$instdir/xdusage.pl";
+my $instfile;
+if ($buildroot){
+ $instfile = "$buildroot/$instdir/xdusage.pl";
+}else{
+ $instfile = "$instdir/xdusage.pl";
+}
 copy ("xdusage.pl", $instfile) or die "Couldn't copy xdusage.pl\n";
-copy ("../docs/xdusage.1", $instdir) or die "Couldn't copy xdusage.1\n";
+
+if ($buildroot){
+    copy ("../docs/xdusage.1", $buildroot."/".$instdir) or die "Couldn't copy xdusage.1\n";
+    copy ("../docs/xdusage.manpage", $buildroot."/".$instdir) or die "Couldn't copy xdusage.manpage\n";
+    copy ("../docs/Admin", $buildroot."/".$instdir) or die "Couldn't copy Admin\n";
+    copy ("../INSTALL", $buildroot."/".$instdir) or die "Couldn't copy INSTALL\n";
+}else{
+    copy ("../docs/xdusage.1", $instdir) or die "Couldn't copy xdusage.1\n";
+    copy ("../docs/xdusage.manpage", $instdir) or die "Couldn't copy xdusage.manpage\n";
+    copy ("../docs/Admin", $instdir) or die "Couldn't copy Admin\n";
+    copy ("../INSTALL", $instdir) or die "Couldn't copy INSTALL\n";
+}
+
 chmod 0700, $instfile or die "Couldn't chmod $instfile: $!";
 
 #Create resource_name
