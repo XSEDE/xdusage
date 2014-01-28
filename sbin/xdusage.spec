@@ -52,6 +52,7 @@ touch %{buildroot}/usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
 /usr/local/xdusage-%VER%-%REL%/xdusage.pl
 /usr/local/xdusage-%VER%-%REL%/xdusage
 /usr/local/xdusage-%VER%-%REL%/Admin
+/usr/local/xdusage-%VER%-%REL%/Testing
 /usr/local/xdusage-%VER%-%REL%/xdusage.1
 /usr/local/xdusage-%VER%-%REL%/xdusage.manpage
 /usr/local/xdusage-%VER%-%REL%/INSTALL

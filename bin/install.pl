@@ -101,11 +101,13 @@ if ($buildroot){
     copy ("../docs/xdusage.manpage", $buildroot."/".$instdir) or die "Couldn't copy xdusage.manpage\n";
     copy ("../docs/Admin", $buildroot."/".$instdir) or die "Couldn't copy Admin\n";
     copy ("../INSTALL", $buildroot."/".$instdir) or die "Couldn't copy INSTALL\n";
+    copy ("../docs/Testing", $buildroot."/".$instdir) or die "Couldn't copy Testing\n";
 }else{
     copy ("../docs/xdusage.1", $instdir) or die "Couldn't copy xdusage.1\n";
     copy ("../docs/xdusage.manpage", $instdir) or die "Couldn't copy xdusage.manpage\n";
     copy ("../docs/Admin", $instdir) or die "Couldn't copy Admin\n";
     copy ("../INSTALL", $instdir) or die "Couldn't copy INSTALL\n";
+    copy ("../docs/Testing", $instdir) or die "Couldn't copy Testing\n";
 }
 
 chmod 0700, $instfile or die "Couldn't chmod $instfile: $!";
