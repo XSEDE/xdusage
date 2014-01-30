@@ -6,7 +6,23 @@ use the new RPM, but the legacy method is described for systems that may still r
 Installing the xdusage RPM:
 
 1) Set your machine to trust the repository.
-	For the SDI software repository, 
+        This is done by installing the appropriate configuration rpm from 
+        http://software.xsede.org/development/repo/repos/
+	Once you have gotten the appropriate configuration rpm from the link 
+	above, install it with 
+         # rpm -i XSEDE-software-config.distro.noarch.rpm 
+	 or
+         # zypper install ./Globus-5.2-stable-config.sles11.noarch.rpm
+
+      You should get a warning that looks like:
+        warning: XSEDE-software-config.centos-5-1.noarch.rpm: Header V3 DSA
+ signature: NOKEY, key ID bf395672
+        This is a gpg trust bootstrapping issue because until you install the
+ above RPM, RPM doesn't know which gpg key(s) to trust.  The above RPM installs 
+the PGP keys that are needed, but one has to run these commands for RPM to forma
+lly recognize them:
+           # rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-Globus
+           # rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-xsedesdi
 
 2) yum install xdusage
 
