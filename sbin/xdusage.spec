@@ -12,8 +12,8 @@ URL:            http://www.xsede.org/
 Source:		xdusage-%VER%%REL%.tgz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Requires:    perl-Date-Manip
-Requires:    perl-DBD-Pg
+Requires:    perl(Date::Manip)
+Requires:    perl(DBD::Pg)
 Requires(pre): shadow-utils
 
 
