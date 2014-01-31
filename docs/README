@@ -12,7 +12,7 @@ Installing the xdusage RPM:
 	above, install it with 
          # rpm -i XSEDE-software-config.distro.noarch.rpm 
 	 or
-         # zypper install ./Globus-5.2-stable-config.sles11.noarch.rpm
+         # zypper install ./XSEDE-software-config.distro.noarch.rpm
 
       You should get a warning that looks like:
         warning: XSEDE-software-config.centos-5-1.noarch.rpm: Header V3 DSA
