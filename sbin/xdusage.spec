@@ -49,15 +49,15 @@ mkdir -p %{buildroot}/usr/local/xdusage-1.1r0
 touch %{buildroot}/usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
 
 %files
-/usr/local/xdusage-%VER%-%REL%/xdusage.pl
-/usr/local/xdusage-%VER%-%REL%/xdusage
-/usr/local/xdusage-%VER%-%REL%/Admin
-/usr/local/xdusage-%VER%-%REL%/Testing
-/usr/local/xdusage-%VER%-%REL%/xdusage.1
-/usr/local/xdusage-%VER%-%REL%/xdusage.manpage
-/usr/local/xdusage-%VER%-%REL%/INSTALL
-/usr/local/xdusage-%VER%-%REL%/xdusage.modules
-/usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/xdusage.pl
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/xdusage
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/Admin
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/Testing
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/xdusage.1
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/xdusage.manpage
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/INSTALL
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/xdusage.modules
+%attr(-, xdusage, xdusage) /usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
 
 %clean
 
