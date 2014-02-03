@@ -1,18 +1,15 @@
-xdusage-%VER%-%REL% install instructions
-
-This document describes two ways to install xdusage; the preferred way is to 
-use the new RPM, but the legacy method is described for systems that may still require it.
+xdusage-%VER%-%REL% install instructions This document describes two ways to install xdusage; the preferred way is to use the new RPM, but the legacy method is described for systems that may still require it.
 
 Installing the xdusage RPM:
 
 1) Set your machine to trust the repository.
         This is done by installing the appropriate configuration rpm from 
         http://software.xsede.org/development/repo/repos/
-	Once you have gotten the appropriate configuration rpm from the link 
-	above, install it with 
-         # rpm -i XSEDE-Development-config.distro.noarch.rpm 
+	Once you have found the link to the appropriate configuration rpm,
+	install it with 
+         # rpm -i http://software.xsede.org/development/repo/repos/XSEDE-Development-config.<OPERATING SYSTEM>.noarch.rpm
 	 or
-         # zypper install ./XSEDE-Development-config.distro.noarch.rpm
+         # zypper install http://software.xsede.org/development/repo/repos/XSEDE-Development-config.<OPERATING SYSTEM>.noarch.rpm
 
       You should get a warning that looks like:
         warning: XSEDE-Development-config.centos-5-1.noarch.rpm: Header V3 DSA
