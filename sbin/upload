@@ -32,5 +32,4 @@ scp -p $OUTDIR/docs/* $REPO:$REPO_SOFTWARE/$REPO_SUBDIR/
 scp -p $OUTDIR/INSTALL $REPO:$REPO_SOFTWARE/$REPO_SUBDIR/
 
 ssh $REPO "cd $REPO_SOFTWARE; rm latest; ln -s $REPO_SUBDIR latest"
-ssh $REPO "cd $REPO_SOFTWARE; ln -fs latest/README* ./"
 ssh $REPO "cd $REPO_SOFTWARE; ln -fs latest/INSTALL* ./"

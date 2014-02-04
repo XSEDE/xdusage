@@ -39,8 +39,8 @@ for i in $FILES;do
       $i \
       >$OUTDIR/$iout
 done
-mv $OUTDIR/docs/README $OUTDIR/INSTALL
- man $OUTDIR/docs/xdusage.1 >$OUTDIR/docs/xdusage.manpage
+mv $OUTDIR/docs/INSTALL $OUTDIR/INSTALL
+man $OUTDIR/docs/xdusage.1 >$OUTDIR/docs/xdusage.manpage
 chmod +x $OUTDIR/bin/install.pl
 chmod +x $OUTDIR/sbin/buildrpm
 

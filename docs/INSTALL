@@ -1,57 +1,61 @@
-xdusage-%VER%-%REL% install instructions This document describes two ways to install xdusage; the preferred way is to use the new RPM, but the legacy method is described for systems that may still require it.
+xdusage-%VER%-%REL% Install Instructions
+========================================
 
-Installing the xdusage RPM:
+This document describes two ways to install xdusage; the preferred way is to use the new RPM, but the legacy method is described for systems that may still require it.
 
 1) Configure trust in the XSEDE-Production repository
 
-    Browse this directory and copy the link to your operating system's package:
-   	http://software.xsede.org/production/repo/repos/
+   a) Browse this directory and copy the link to your operating system's package:
+      http://software.xsede.org/production/repo/repos/
 
-    Install the package:
-   	# rpm -i http://software.xsede.org/production/repo/repos/XSEDE-Production-config.<OPERATING SYSTEM>.noarch.rpm
+   b) Install the package at the copied link:
+      rpm -i http://software.xsede.org/production/repo/repos/XSEDE-Production-config.<OPERATING SYSTEM>.noarch.rpm
+   You should see a warning similar to this:
+      warning: XSEDE-Production-config.centos-5-1.noarch.rpm: Header V3 DSA signature: NOKEY, key ID 20423dbb
+   This is a trust bootstrapping issue because until you complete this entire procedure, RPM doesn't trust the signer of this RPM.
 
-    NOTE: If you need to securely download the above package use https to browse the above directory, download the package from the https url using your favorite download tool, and rpm install the downloaded file.
+   c) Lastly, configure RPM to trust XSEDE's signature (PGP key) installed by the above RPM:
+      rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-XSEDE-Production
 
-    Installing the RPM you should get a warning like:
-   	warning: XSEDE-Production-config.centos-5-1.noarch.rpm: Header V3 DSA signature: NOKEY, key ID 20423dbb
+   SECURITY NOTE:
+   If you need greater security assurance modify the above procedure as follows:
+   a') Browse the package directory using https and review the server's HTTPS/TLS host certificate
+   b') Download the package over https using your favorite secure download tool
+   c') Verify the RPM before you install it using "rpm -Kv <package>"
 
-    This is a gpg trust bootstrapping issue because until you install the above RPM, RPM doesn't know which gpg key(s) to trust.
-
-    The RPM installs the PGP keys that are needed. Tell RPM to trust XSEDE's package signature:
-   	# rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-XSEDE-Production
-
-	NOTE:  If you need the SD&I Development version, you will need to
-configure your system to use the XSEDE-Development repository by following
-https://software.xsede.org/development/repo/repoconfig.txt
+NOTE: If you need an SD&I Development version, you will need to configure your system to use the XSEDE-Development
+repository by following this procedure https://software.xsede.org/development/repo/repoconfig.txt
 
 2) Install xdusage.
+
+   NOTE: The xdusage rpm will automatically create an "xdusage" account that will own the xdusage install
+         and that will execute xdusage via sudo.
+
    To install to the default location of /usr/local/xdusage-%VER%-%REL%, you can simply do:
+   # yum install xdusage
 
-  # yum install xdusage
-
-   If you want to install it in a different location, say /soft/xdusage-%VER%-%REL%, you can do the following.  Since yum doesn't allow you to specify a prefix,there are a couple of steps to take to download the RPM and install it using rpm.
-  To install to a different prefix:
-     # yum install yum-downloadonly
-     # yum update xdusage -y --downloadonly --downloaddir=./
-     # rpm -i --prefix=<INSTALL_DIR> ./xdusage-%VER%%REL%-1.noarch.rpm
+   If you want to install it in a different location, say /soft/xdusage-%VER%-%REL%, you can use the following procedure:
+   # yum install yum-downloadonly
+   # yum update xdusage -y --downloadonly --downloaddir=./
+   # rpm -i --prefix=<INSTALL_DIR> ./xdusage-%VER%%REL%-1.noarch.rpm
 
 
 3) create the xdusage.admins file, listing, one per line, each user of the local
    system who is an xdusage admin (admins are allowed to perform queries as
    other users).  The xdusage.admins file should be placed in the install dir.
 
-4) edit /etc/sudoers to grant permission for everyone to run xdusage as the non_root user "xdusage" (created when the rpm was installed).  This can be done by adding the two lines from /usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
+4) edit /etc/sudoers to grant permission for everyone to run xdusage as the non_root user "xdusage" (created when the rpm was installed).  This can be done by adding the two lines from <INSTALL_DIR>/xdusage.sudoers
 
 On SLES11, you may need to use these lines instead, where <not_root_user> should probably be a new user created just for this one program:
 
 # XDUSAGE %VER% %REL%
 Defaults>xdusage env_keep="USER XDUSAGE_INSTALL_DIR"
-ALL ALL=(xdusage) NOPASSWD: <full path to install dir>/xdusage.pl
+ALL ALL=(xdusage) NOPASSWD: <INSTALL_DIR>/xdusage.pl
 
 
-5) For each resource at your site that you are deploying xd_usage on, create a file called <full path to install dir>/resource_name that contains the corresponding XDCDB resource_name for that resource.
+5) For each resource at your site that you are deploying xd_usage on, create a file called <INSTALL_DIR>/resource_name that contains the corresponding XDCDB resource_name for that resource.
 
-6) edit <full path to install dir>/xdusage.pl
+6) edit <INSTALL_DIR>/xdusage.pl
     On the line:
 	 my $PASSWORD="xdusage";
     replace xdusage with the actual password as obtained from the 
@@ -64,27 +68,16 @@ ALL ALL=(xdusage) NOPASSWD: <full path to install dir>/xdusage.pl
 
 
 
-
-
-
-
-
-
-
-
 Installing from a tarball (Legacy install method):
-
 
 Prerequisites:  sudo, and the perl modules DBI, DBD:: Pg (compiled with SSL 
 support), Getopt::Long, and Date::Manip.
 
 Note:  If you are building DBD::Pg with SSL support yourself, you must:
-		export POSTGRES_LIB="/usr/local/pgsql/lib -lssl -lcrypto"
+          export POSTGRES_LIB="/usr/local/pgsql/lib -lssl -lcrypto"
        before building.  See the INSTALLATION section of 
-	http://cpansearch.perl.org/src/TURNSTEP/DBD-Pg-2.19.3/README
+          http://cpansearch.perl.org/src/TURNSTEP/DBD-Pg-2.19.3/README
        for more details.
-
-
 
 xdusage can be installed in several simple steps:
 
@@ -102,7 +95,7 @@ Note:  installation should be done by a non-privileged user.
 3) cd xdusage-%VER%-%REL%/bin
 
 4) run install.pl, giving as parameters the user that xdusage should run as, and the installation   directory:
-	./install.pl -user <not_a_root_user> -dir <full path to install dir>
+	./install.pl -user <not_a_root_user> -dir <INSTALL_DIR>
    Note:  xdusage should be run as a non-root user that does not map to an 
 	actual person.  This can be the "software" user.
 
@@ -112,18 +105,18 @@ Note:  installation should be done by a non-privileged user.
 
 6) edit /etc/sudoers to grant permission for everyone to run xdusage as the non_root user specified in 4) above.  This can be done by adding these two lines:
 
-Defaults!<full path to install dir>/xdusage.pl env_keep="USER XDUSAGE_INSTALL_DIR"
-ALL ALL=(<not_a_root_user>) NOPASSWD: <full path to install dir>/xdusage.pl
+Defaults!<INSTALL_DIR>/xdusage.pl env_keep="USER XDUSAGE_INSTALL_DIR"
+ALL ALL=(<not_a_root_user>) NOPASSWD: <INSTALL_DIR>/xdusage.pl
 
 On SLES11, you may need to use these lines instead, where <not_root_user> should probably be a new user created just for this one program:
 
 # XDUSAGE %VER% %REL%
 Defaults><not_root_user> env_keep="USER XDUSAGE_INSTALL_DIR"
-ALL ALL=(<not_root_user>) NOPASSWD: <full path to install dir>/xdusage.pl
+ALL ALL=(<not_root_user>) NOPASSWD: <INSTALL_DIR>/xdusage.pl
 
-7) For each resource at your site that you are deploying xd_usage on, create a file called <full path to install dir>/resource_name that contains the corresponding XDCDB resource_name for that resource.
+7) For each resource at your site that you are deploying xd_usage on, create a file called <INSTALL_DIR>/resource_name that contains the corresponding XDCDB resource_name for that resource.
 
-8) edit <full path to install dir>/xdusage.pl
+8) edit <INSTALL_DIR>/xdusage.pl
     On the line:
 	 my $PASSWORD="xdusage";
     replace xdusage with the actual password as obtained from the 

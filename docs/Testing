@@ -1,5 +1,5 @@
 
-After installing the xdusage scripts as described in the README, including
+After installing the xdusage scripts as described in the INSTALL file, including
 adding the appropriate accounts to the xdusage.admins file, the tester should,
 using her own account, run the xdusage script, and look for reasonable output.
 
