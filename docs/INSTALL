@@ -70,8 +70,8 @@ ALL ALL=(xdusage) NOPASSWD: <INSTALL_DIR>/xdusage.pl
 
 Installing from a tarball (Legacy install method):
 
-Prerequisites: sudo, and the perl modules DBI, DBD:: Pg (compiled with SSL 
-support), Getopt::Long, and Date::Manip.
+Prerequisites: sudo, and the perl modules DBI, DBD:: Pg (compiled with SSL support), Getopt::Long,
+  and Date::Manip.
 
 Note:  If you are building DBD::Pg with SSL support yourself, you must:
           export POSTGRES_LIB="/usr/local/pgsql/lib -lssl -lcrypto"
@@ -88,6 +88,7 @@ Note:  installation should be done by a non-privileged user.
 
 1) Get the latest xdusage package at:
         http://software.teragrid.org/software/xdusage/latest/
+   Validate the tar against the published signature
 
 2) Untar the package:
 	tar -xzvf xdusage-%VER%-%REL%.tgz
