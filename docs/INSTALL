@@ -65,12 +65,12 @@ ALL ALL=(xdusage) NOPASSWD: <INSTALL_DIR>/xdusage.pl
 
 8) Look at the docs/Testing document for a sanity-check command line to run.
 
-
-
+9) Update your login.teragrid.org kit registration with the new version "%VER%" of xdusage
+   http://software.teragrid.org/pacman/ctss4/ctss-login-registration/README.config.html
 
 Installing from a tarball (Legacy install method):
 
-Prerequisites:  sudo, and the perl modules DBI, DBD:: Pg (compiled with SSL 
+Prerequisites: sudo, and the perl modules DBI, DBD:: Pg (compiled with SSL 
 support), Getopt::Long, and Date::Manip.
 
 Note:  If you are building DBD::Pg with SSL support yourself, you must:
