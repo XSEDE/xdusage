@@ -1,7 +1,7 @@
 Name:           xdusage
 %global _name %(tr - _ <<< %{name})
-Version:        %VER%%REL%
-Release:        1
+Version:        %VER%
+Release:        %REL% 
 Summary:        xdusage- displays usage information for XSEDE projects
 
 Group:          System Environment/Libraries
@@ -9,7 +9,7 @@ BuildArch: noarch
 Prefix:		/usr/local
 License:        ASL 2.0
 URL:            http://www.xsede.org/
-Source:		xdusage-%VER%%REL%.tgz
+Source:		xdusage-%VER%-%REL%.tgz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:    perl(Date::Manip)
@@ -43,7 +43,7 @@ exit 0
 
 %install
 cd bin
-mkdir -p %{buildroot}/usr/local/xdusage-1.1r0
+mkdir -p %{buildroot}/usr/local/xdusage-%VER%-%REL%
 ./install.pl -user xdusage -dir /usr/local/xdusage-%VER%-%REL% -buildroot %{buildroot}
 #touch sudoers files so they'll exist
 touch %{buildroot}/usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
@@ -65,7 +65,7 @@ touch %{buildroot}/usr/local/xdusage-%VER%-%REL%/xdusage.sudoers
 #echo sudoers to files
 cat <<EOF > $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/xdusage.sudoers
 Defaults!$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl env_keep="USER XDUSAGE_INSTALL_DIR"
-ALL ALL=(<not_a_root_user>) NOPASSWD: $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/bin/xdusage.pl
+ALL ALL=(xdusage) NOPASSWD: $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/xdusage.pl
 EOF
 
 #clean up relocation problems

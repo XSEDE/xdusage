@@ -14,7 +14,7 @@ VER=$(cat VERSION)
 REL=$(cat RELEASE)
 
 HERE=`pwd`
-OUTDIR="tmp/xdusage-$VER$REL/"
+OUTDIR="tmp/xdusage-$VER/"
 
 if [ -e $OUTDIR ]; then
   echo "Previous '$OUTDIR/' directory found, delete it first"
@@ -48,5 +48,5 @@ chmod +x $OUTDIR/sbin/buildrpm
 #tar -czf $PKG-$VER-$REL.tgz bin/* docs/* 
 #cd $HERE
 cd tmp
-tar -czvf $PKG-$VER$REL.tgz $PKG-$VER$REL
+tar -czvf $PKG-$VER-$REL.tgz $PKG-$VER
 cd $HERE

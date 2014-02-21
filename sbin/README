@@ -1,0 +1,9 @@
+Workflow:
+
+./sbin/generate-packages
+creates tarball and rpm
+
+./sbin/upload
+uploads and signs the tarball
+./sbin/rpmupload
+uploads, signs, pushes rpm to all the repos, and updates all the repos
