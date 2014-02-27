@@ -52,8 +52,15 @@ On SLES11, you may need to use these lines instead, where <not_root_user> should
 Defaults>xdusage env_keep="USER XDUSAGE_INSTALL_DIR"
 ALL ALL=(xdusage) NOPASSWD: <INSTALL_DIR>/xdusage.pl
 
+5) For each resource at your site that you are deploying xdusage on, create a file called <INSTALL_DIR>/resource_name that contains the corresponding XDCDB resource_name for that resource. To clarify, the name of the file is literally "resource_name"; its contents are the name of your resource as found in the database. For example: 
 
-5) For each resource at your site that you are deploying xd_usage on, create a file called <INSTALL_DIR>/resource_name that contains the corresponding XDCDB resource_name for that resource.
+$ cat /usr/local/xdusage-%VER%-%REL%/resource_name 
+gordon.sdsc.teragrid
+
+If you do not know the resource_name for your resource, you can look it up using:
+http://info.teragrid.org/web-apps/html/views/tgcdbresources
+
+xdusage uses the combination of resource_name and the LOCAL username running xdusage to lookup the user's XSEDE username in XDCDB. That enables xdusage to show the user's usage across all resources even when the LOCAL username on those resources may be different.
 
 6) edit <INSTALL_DIR>/xdusage.pl
     On the line:
@@ -115,7 +122,15 @@ On SLES11, you may need to use these lines instead, where <not_root_user> should
 Defaults><not_root_user> env_keep="USER XDUSAGE_INSTALL_DIR"
 ALL ALL=(<not_root_user>) NOPASSWD: <INSTALL_DIR>/xdusage.pl
 
-7) For each resource at your site that you are deploying xd_usage on, create a file called <INSTALL_DIR>/resource_name that contains the corresponding XDCDB resource_name for that resource.
+7) For each resource at your site that you are deploying xdusage on, create a file called <INSTALL_DIR>/resource_name that contains the corresponding XDCDB resource_name for that resource. To clarify, the name of the file is literally "resource_name"; its contents are the name of your resource as found in the database. For example: 
+
+$ cat /usr/local/xdusage-%VER%-%REL%/resource_name 
+gordon.sdsc.teragrid
+
+If you do not know the resource_name for your resource, you can look it up using:
+http://info.teragrid.org/web-apps/html/views/tgcdbresources
+
+xdusage uses the combination of resource_name and the LOCAL username running xdusage to lookup the user's XSEDE username in XDCDB. That enables xdusage to show the user's usage across all resources even when the LOCAL username on those resources may be different.
 
 8) edit <INSTALL_DIR>/xdusage.pl
     On the line:
