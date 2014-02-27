@@ -25,6 +25,7 @@ fi
 #ssh -l xsedesig $REPO mkdir -p $REPO_SOFTWARE/$REPO_SUBDIR
 
 scp -p packages/$PKG-$VER-$REL.noarch.rpm xsedesig@$REPO:$REPO_SOFTWARE/
+scp -p packages/$PKG-$VER-$REL.src.rpm xsedesig@$REPO:$REPO_SOFTWARE/
 
 ssh -l xsedesig $REPO "cd /home/xsedesig; ./repobin/rpm-sign.exp \`cat /home/xsedesig/pass\` ./incoming/$PKG-$VER-$REL.noarch.rpm"
 
