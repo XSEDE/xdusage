@@ -94,7 +94,7 @@ Note:  installation should be done by a non-privileged user.
 	editing /etc/sudoers.
 
 1) Get the latest xdusage package at:
-        http://software.teragrid.org/software/xdusage/latest/
+        http://software.xsede.org/production/xdusage/latest/
    Validate the tar against the published signature
 
 2) Untar the package:
