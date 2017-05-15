@@ -14,6 +14,10 @@ Getopt::Long::Configure ("no_ignore_case");
 use FindBin qw($RealBin);
 my($install_dir) = $RealBin;
 
+#Perl always has "." on the end of @INC, and it causes problems if the
+#xdinfo user can't read the current working directory, hence:
+pop(@INC);
+
 # this needs to be run by sudo, as we're using 
 # sudo to provide a reasonably-assured user id
 # sudoers should have:
