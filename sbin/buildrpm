@@ -1,9 +1,0 @@
-mkdir -p tmp/xdusagerpmtopdir
-mkdir -p tmp/xdusagerpmtopdir/BUILD
-mkdir -p tmp/xdusagerpmtopdir/SOURCES
-mkdir -p tmp/xdusagerpmtopdir/BUILDROOT
-mkdir -p tmp/xdusagerpmtopdir/RPMS
-mkdir -p tmp/xdusagerpmtopdir/SPECS
-mkdir -p tmp/xdusagerpmtopdir/SRPMS
-cp xdusage-%VER%-%REL%.tgz tmp/xdusagerpmtopdir/SOURCES
-rpmbuild --define "_topdir ${PWD}/tmp/xdusagerpmtopdir" -ba ./xdusage-%VER%/sbin/xdusage.spec

@@ -1,0 +1,122 @@
+#!/bin/sh
+
+if [ ! -e VERSION ]; then
+  echo "You may not be in the right place to run upload"
+  echo "Please run from the root of the package"
+  exit 1
+fi
+
+PKG=xdusage
+VER=$(cat VERSION)
+REL=$(cat RELEASE)
+
+DEFAULT_FILE_PERMS="664"
+DEFAULT_DIR_PERMS="775"
+REPO_HOSTNAME=software.xsede.org
+DEV_PKG_BASE=/local/software.xsede.org/development/$PKG
+DEV_RPM_BASE=/local/software.xsede.org/development/repo
+PKG_SUBDIR=$PKG-$VER-$REL
+
+HERE=`pwd`
+PACKAGES=$HERE/tmp_packages
+STAGING=$HERE/tmp_upload
+
+##################################################################################
+
+while getopts "hu:" opt; do
+  case $opt in
+    u) REPO_HOSTNAME="$OPTARG@$REPO_HOSTNAME"
+       ;;
+    h) 
+      echo $USAGE 
+      exit 0
+      ;;
+    \?)
+      echo $USAGE >&2
+      exit 1
+      ;;
+  esac
+done
+
+###########################################
+# Upload to Development TAR repository
+###########################################
+echo "** Uploading to Development TAR distribution location https://software.xsede.org/development/$PKG/"
+
+ssh $REPO_HOSTNAME "mkdir -m $DEFAULT_DIR_PERMS $DEV_PKG_BASE/$PKG_SUBDIR"
+
+cd $PACKAGES
+chmod $DEFAULT_FILE_PERMS *.tgz *.tgz.sig
+scp -p *.tgz *.tgz.sig INSTALL INSTALL_Testing xdusage.1 $REPO_HOSTNAME:$DEV_PKG_BASE/$PKG_SUBDIR/
+cd $HERE
+
+ssh $REPO_HOSTNAME "cd $DEV_PKG_BASE; rm -f latest; ln -s $PKG_SUBDIR latest"
+echo
+
+###########################################
+# Upload to Development RPM repositories
+###########################################
+echo "** Uploading to Development YUM repositories https://software.xsede.org/development/repo/"
+
+function stage_rpm {
+  osname=$1
+  osrel=$2
+  platform=$3
+  arch=$4
+  #echo ${osname} ${osrel} ${platform} ${arch}
+  mkdir -p $STAGING/$osname/$osrel/$arch/
+  cp -p $PACKAGES/*.noarch.rpm $STAGING/$osname/$osrel/$arch/
+  mkdir -p $STAGING/$osname/$osrel/SRPMS/
+  cp -p $PACKAGES/*.src.rpm $STAGING/$osname/$osrel/SRPMS/
+}
+
+if [ -e $STAGING/ ]; then
+  rm -fr $STAGING/
+fi
+
+for targetarch in i386 x86_64; do
+{
+  platform=redhat
+  osname=redhat
+  for osrel in 6Server 5Server; do
+    stage_rpm ${osname} ${osrel} ${platform} ${targetarch}
+  done
+  if [[ ${targetarch} == "x86_64" ]]; then
+    osrel=7Server
+    stage_rpm ${osname} ${osrel} ${platform} ${targetarch}
+  fi
+  osname=centos
+  for osrel in 5 6 7; do
+    stage_rpm ${osname} ${osrel} ${platform} ${targetarch}
+  done
+  osname=sl
+  for osrel in 5 6 5.5 6.1; do
+    stage_rpm ${osname} ${osrel} ${platform} ${targetarch}
+  done
+  osname=fedora
+  for osrel in 16 17 18 19; do
+    stage_rpm ${osname} ${osrel} ${platform} ${targetarch}
+  done
+  osname=sles
+  platform=suse
+  for osrel in 11.2; do
+    if [[ ${targetarch} == "x86_64" ]]; then
+      stage_rpm ${osname} ${osrel} ${platform} ${targetarch}
+    fi
+  done
+}
+#end big arch loop
+done
+
+cd $STAGING || exit 99
+for file in $(find ./ -type f -name "*.rpm")
+do
+  echo -n "."
+  chmod $DEFAULT_FILE_PERMS $file
+  scp -q -p $file $REPO_HOSTNAME:$DEV_RPM_BASE/$file
+  ssh $REPO_HOSTNAME chmod $DEFAULT_FILE_PERMS $DEV_RPM_BASE/$file
+done
+echo
+cd $HERE
+
+ssh -t $REPO_HOSTNAME /soft/repo-mgmt/bin/rebuild_yum_repositories.sh development

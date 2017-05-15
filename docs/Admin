@@ -1,12 +1,15 @@
 xdusage admins documentation:
 
-The purpose of defining administrator accounts in 
+In order to see how xdusage behaves for any particular user, xdusage allows
+designating certain users as admin users.  This is accomplished by adding 
+the following line to xdusage.conf:
+      admin_name <user>
+Multiple admin_name lines may be speficied for multiple admin users.
+      admin_name <user2>
+      admin_name <user3>
+      ...
 
-      <install dir>/xdusage.admins
-
-is to allow admins the ability to run xdusage emulating a given user, in order to see how xdusage behaves for any particular user.
-
-This is accomplished by setting the $USER environment variable before the admin runs an xdusage command.
+Admin users can impersonate other users by setting the $USER environment variable before running an xdusage command.
 
 For exmaple, suppose regular user 'mshapiro' wants to see all the usage for accounts for 'navarro' on all of mshapiro's projects. This command would do it:
 

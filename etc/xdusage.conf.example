@@ -1,0 +1,22 @@
+# example xdusage.conf file
+# put this in one of the following:
+#  INSTALL_DIR/etc/xdusage.conf   (INSTALL_DIR is where xdusage lives)
+#  /etc/xdusage.conf
+#  /var/secrets/xdusage.conf
+#
+# This file should be owned by root:xdusage (change group to your equivalent)
+# This file should be mode 0640 (NEVER world-readable)
+#
+
+
+# XDCDB ResourceName from https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+resource_name     = <YOUR_XDCDB_RESOURCE_NAME>
+api_id            = <YOUR_XDCDB_RESOURCE_NAME>
+api_key           = <YOUR_API_KEY>
+
+rest_url_base     = https://xsede-xdcdb-api.xsede.org/
+
+# admins who can impersonate other users; one admin per line
+admin_name = ssakai
+#admin_name = someoneelse
+#admin_name = anothersomeone

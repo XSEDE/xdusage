@@ -1,0 +1,89 @@
+Name:           xdusage
+%global _name %(tr - _ <<< %{name})
+Version:        %VER%
+Release:        %REL% 
+Summary:        xdusage- displays usage information for XSEDE projects
+
+Group:          System Environment/Libraries
+BuildArch: noarch
+Prefix:		/usr/local
+License:        ASL 2.0
+URL:            http://www.xsede.org/
+Source:		xdusage-%VER%-%REL%.tgz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Requires:    perl(Date::Manip)
+Requires:    perl(JSON)
+Requires:    perl(Getopt::Long)
+Requires:    perl(LWP::UserAgent)
+Requires:    perl(IO::Socket::SSL)
+Requires:    perl(URI::Escape)
+
+Requires(pre): shadow-utils
+
+
+%description
+ xdusage  displays  project and user account usage information for XSEDE
+ projects.  Information includes  the  usage,  allocation,  status,  and
+ dates  of  projects,  as  well  as  user  account usage and status and,
+ optionally, job-level information.
+
+The %{name} package contains:
+xdusage command line tool
+
+%pre
+# user creation cribbed from
+# http://fedoraproject.org/wiki/Packaging%3aUsersAndGroups
+
+getent group xdusage >/dev/null || groupadd -r xdusage
+getent passwd xdusage >/dev/null || \
+    useradd -r -g xdusage -d / -s /dev/null \
+    -c "Account for xdusage queries to run as" xdusage
+exit 0
+
+%prep
+%setup
+
+%build
+
+%install
+DESTDIR=%{buildroot}/usr/local/xdusage-%VER%-%REL%
+mkdir -p ${DESTDIR}
+mkdir -p ${DESTDIR}/bin
+mkdir -p ${DESTDIR}/docs
+mkdir -p ${DESTDIR}/etc
+mkdir -p ${DESTDIR}/sbin
+cp -p bin/xdusage ${DESTDIR}/bin/
+cp -p docs/INSTALL ${DESTDIR}/docs/
+cp -p docs/INSTALL_Testing ${DESTDIR}/docs/
+cp -p docs/Admin ${DESTDIR}/docs/
+cp -p docs/xdusage.1 ${DESTDIR}/docs/
+cp -p docs/xdusage.manpage ${DESTDIR}/docs/
+cp -p etc/xdusage.conf.example ${DESTDIR}/etc/
+cp -p etc/xdusage.sudoers.example ${DESTDIR}/etc/
+cp -p etc/xdusage.modules.example ${DESTDIR}/etc/
+
+%files
+%attr(0755, root   , root   ) /usr/local/xdusage-%VER%-%REL%/bin/xdusage
+%attr(0644, root   , root   ) /usr/local/xdusage-%VER%-%REL%/docs/INSTALL
+%attr(0644, root   , root   ) /usr/local/xdusage-%VER%-%REL%/docs/INSTALL_Testing
+%attr(0644, root   , root   ) /usr/local/xdusage-%VER%-%REL%/docs/Admin
+%attr(0644, root   , root   ) /usr/local/xdusage-%VER%-%REL%/docs/xdusage.1
+%attr(0644, root   , root   ) /usr/local/xdusage-%VER%-%REL%/docs/xdusage.manpage
+%attr(0640, root   , xdusage) /usr/local/xdusage-%VER%-%REL%/etc/xdusage.conf.example
+%attr(0644, root   , root   ) /usr/local/xdusage-%VER%-%REL%/etc/xdusage.modules.example
+%attr(0644, root   , root   ) /usr/local/xdusage-%VER%-%REL%/etc/xdusage.sudoers.example
+
+%clean
+
+%post
+
+#clean up relocation problems
+sed -i -e "s|INSTALL_DIR|$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%|g" $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/etc/xdusage.modules.example
+sed -i -e "s|INSTALL_DIR|$RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%|g" $RPM_INSTALL_PREFIX/xdusage-%VER%-%REL%/etc/xdusage.sudoers.example
+
+
+
+%postun
+
+%changelog

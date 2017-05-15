@@ -1,0 +1,48 @@
+
+After installing the xdusage scripts as described in the INSTALL file, including
+adding the appropriate accounts as admin_name declarations in xdusage.conf, 
+the tester should, using her own account, run the xdusage script, and look 
+for reasonable output.
+
+===Test 1: Show tester's projects on current resource===
+
+Steps:
+   $ ./xdusage
+
+Results:
+* the output should look like the following:
+
+one or more stanzas of:
+
+Project: <project identifier>/<resource name> [""|status=inactive]
+PI: <name of PI>
+Allocation: <start date>/<end date>
+ Total=<size of allocation> Remaining=<amount remaining> Usage=<how much has been used> Jobs=<number of jobs>
+   <name of querying user> portal=<xsede portal name for user> usage=<personal usage> jobs=<personal number of jobs>
+
+Notes:
+* status=inactive appears on the Project: line if the project is no longer active; 
+* If the project is active, no "status=" will appear
+
+
+Then, from an account that is in an admin_name declaration in xdusage.conf, the 
+tester should perform Test 2:
+
+===Test 2: Query by another username===
+
+Prerequisites:
+* tester's account in admin_name declaration in xdusage.conf
+
+Steps:
+  $ env USER=<username> ./xdusage 
+
+Results:
+* Output will be as in test 1 above, but with usage information for the user specified by $USER instead of the user performing the test
+
+Notes:
+* If the test user is not in xdusage.admins, this test should give //exactly// the same output as test 1 above, for the invoking user, not the one specified by $USER
+
+* Some connection failures may be due to the client machine not recognizing the TLS/SSL
+  Certificate of the XDCDB API service.  You can confirm if that is the problem you are
+  having by temporarily adding this line at the start of the gateway_submi_attributes script:
+    $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;

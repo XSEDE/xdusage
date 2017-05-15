@@ -1,0 +1,4 @@
+# sudoers include file for xdusage
+Defaults!INSTALL_DIR/bin/xdusage env_keep="USER"
+Defaults!INSTALL_DIR/bin/xdusage runas_default=xdusage
+ALL ALL=(xdusage) NOPASSWD: INSTALL_DIR/bin/xdusage
