@@ -15,8 +15,9 @@ use FindBin qw($RealBin);
 my($install_dir) = $RealBin;
 
 #Perl always has "." on the end of @INC, and it causes problems if the
-#xdinfo user can't read the current working directory, hence:
-pop(@INC);
+#xdinfo user can't read the current working directory.
+# no lib "." will remove . from @INC--safer than pop(@INC).
+no lib ".";
 
 # this needs to be run by sudo, as we're using 
 # sudo to provide a reasonably-assured user id
