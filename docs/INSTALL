@@ -4,6 +4,11 @@
 
 Instructions for installing xdusage from RPM (recommended) or from TAR.
 
+To install xdusage on machines that are part of multiple XSEDE resources
+please first review the following Advanced Integration Options document:
+
+https://www.ideals.illinois.edu/bitstream/handle/2142/99081/XSEDE_SP_Advanced_Integration_Options.pdf
+
 **********************
 ** RPM Installation **
 **********************
