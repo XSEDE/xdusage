@@ -1,11 +1,15 @@
 #!/usr/bin/env perl
 use strict;
+use Fcntl;
 use Getopt::Long;
 use Date::Manip;
+use Sys::Hostname;
 
 use LWP::UserAgent;
 use JSON;
 use URI::Escape;
+use File::stat;
+use Fcntl ':mode';
 
 Getopt::Long::Configure ("no_ignore_case");
 
@@ -13,31 +17,47 @@ Getopt::Long::Configure ("no_ignore_case");
 # eliminates the need to configure an install dir
 use FindBin qw($RealBin);
 my($install_dir) = $RealBin;
+my($me) = (split /\//, $0)[-1];
 
-#Perl always has "." on the end of @INC, and it causes problems if the
-#xdinfo user can't read the current working directory.
+# Perl always has "." on the end of @INC, and it causes problems if the
+# xdinfo user can't read the current working directory.
 # no lib "." will remove . from @INC--safer than pop(@INC).
 no lib ".";
 
-# this needs to be run by sudo, as we're using 
-# sudo to provide a reasonably-assured user id
-# sudoers should have:
-#  Defaults!/path/to/xdusage runas_default=<xdusage user>
-#  Defaults!/path/to/xdusage env_keep="USER"
-#  ALL  ALL=(<xdusage user>) NOPASSWD:/path/to/xdusage
-if (!defined($ENV{SUDO_USER}))
+# Determine if the script is being run by root.
+# Root will be given setup instructions, if necessary, and
+# will be given directions to correct errors, where possible.
+my($is_root) = (getpwuid($<) eq "root");
+
+my($command_line) = join(" ", @ARGV);
+
+print stderr "You are running this script as root.\nAs an administrator, you will be given directions to set up xdusage to run on this machine, if needed.\nWhere possible, you will also be given instructions to correct any errors that are detected.\n\n" if $is_root;
+
+# Root needs to check that the sodoers file is set up correctly,
+# but doesn't need to run with sudo.
+my($logname);
+if ($is_root)
 {
-    # try again with sudo
+    check_sudo();
+    $logname = "root";
+}
+elsif (!defined($ENV{SUDO_USER}))
+{
+    # Check that the sodoers file is set up correctly.
+    check_sudo();
+
+    # This script needs to be run by sudo to provide a reasonably-
+    # assured user ID with access to the configuration file.
+    # Re-run the script using sudo.
     unshift(@ARGV,"$install_dir/xdusage");
     unshift(@ARGV,"sudo");
-    exec @ARGV;
+    exec @ARGV or print STDERR "Couldn't exect sudo: $!\n";
+    exit (1);
 }
-my($logname)     = $ENV{SUDO_USER}           || die "SUDO_USER not set\n";
-
-
-# load the various settings from a configuration file
-# (api_id, api_key, rest_url_base, resource_name, admin_name)
-# file is simple key=value, ignore lines that start with #
+else
+{
+    $logname = $ENV{SUDO_USER};
+}
 
 my($APIKEY);
 my($APIID);
@@ -46,82 +66,10 @@ my(@admin_names);
 my($conf_file);
 my($rest_url);
 
-# list of possible config file locations
-my(@conf_file_list) = ('/etc/xdusage.conf', 
-	      '/var/secrets/xdusage.conf', 
-	      "$install_dir/../etc/xdusage.conf",
-	      ) ;
+# Check that the configuration file is set up and contains valid information.
+check_config();
 
-# use the first one found.
-foreach my $c (@conf_file_list)
-{
-    if (-r $c)
-    {
-        $conf_file = $c;
-        last;
-    }
-}
-
-die "Unable to find xdusage.conf in:\n  " . join("\n  ", @conf_file_list) . 
-    "\n" unless ($conf_file);
-
-# read in config file
-open FD, "<$conf_file" or die "$!: $conf_file";
-while(<FD>)
-{
-    chomp;
-    next if ( /^\s*#/ );
-    next if ( /^\s*$/ );
-    if( ! /^([^=]+)=([^=]+)$/ )
-    {
-        print stderr "Ignoring cruft in $conf_file: '$_'\n";
-	next;
-    }
-    my $key = $1;
-    my $val = $2;
-    $key =~ s/^\s*//g;
-    $key =~ s/\s*$//g;
-    $val =~ s/^\s*//g;
-    $val =~ s/\s*$//g;
-
-    if ($key eq 'api_key')
-    {
-        die "Multiple 'api_key' values in $conf_file" if ($APIKEY);
-	$APIKEY = $val;
-    }
-    elsif ($key eq 'api_id')
-    {
-        die "Multiple 'api_id' values in $conf_file" if ($APIID);
-	$APIID = $val;
-    }
-    elsif ($key eq 'resource_name')
-    {
-        die "Multiple 'resource_name' values in $conf_file" if ($resource);
-	$resource = $val;
-    }
-    elsif ($key eq 'admin_name')
-    {
-        unshift(@admin_names,$val);
-    }
-    elsif ($key eq 'rest_url_base')
-    {
-	die "Multiple 'rest_url_base' values in $conf_file" if ($rest_url);
-	$rest_url = $val;
-    }
-    else
-    {
-        print stderr "Ignoring cruft in $conf_file: '$_'\n";
-    }
-}
-close FD or die "$!: $conf_file";
-
-# stop here if missing required values
-die "Unable to find 'api_key' value in $conf_file" unless ($APIKEY);
-die "Unable to find 'resource_name' value in $conf_file" unless ($resource);
-die "Unable to fine 'rest_url_base' value in $conf_file" unless ($rest_url);
-
-
-my($me) = (split /\//, $0)[-1];
+# Get command line options.
 my(%options) = ();
 usage() unless 
  GetOptions (\%options,
@@ -224,7 +172,322 @@ sub is_admin()
     {
 	$is_admin = 1 if ($user eq $_);
     }
+
     $is_admin;
+}
+
+# load the various settings from a configuration file
+# (api_id, api_key, rest_url_base, resource_name, admin_name)
+# file is simple key=value, ignore lines that start with #
+sub check_config
+{
+    # list of possible config file locations
+    my(@conf_file_list) = ('/etc/xdusage.conf', 
+    	      '/var/secrets/xdusage.conf', 
+    	      "$install_dir/../etc/xdusage.conf",
+    	      ) ;
+    
+    # use the first one found.
+    foreach my $c (@conf_file_list)
+    {
+        if (-r $c)
+        {
+            $conf_file = $c;
+            last;
+        }
+    }
+
+    # The configuration file doesn't exist.
+    # Give the administrator directions to set up the script.
+    if (!$conf_file)
+    {
+        if ($is_root)
+        {
+    	    print stderr "The configuration file could not be located in:\n";
+    	    print stderr  join("\n  ", @conf_file_list) .  "\n";
+    
+    	    setup_conf();
+        }
+        else
+        {
+    	    die "Unable to find the configuration file.\nPlease contact your system administrator.\n";
+        }
+    }
+
+    # read in config file
+    open FD, "<$conf_file" or die "$!: $conf_file";
+
+    # Check ownership of the configuration file is root/xdusage.
+    my $sb = stat($conf_file);
+    if ($sb->uid != getpwnam "root")
+    {
+        config_error("Configuration file '$conf_file' must be owned by user 'root'.", 0);
+    }
+
+    if ($sb->gid != getgrnam "xdusage")
+    {
+        config_error("Configuration file '$conf_file' must be owned by group 'xdusage'.", 0);
+    }
+
+    # Check that the configuration file has the correct permissions.
+    my $mode = S_IMODE(stat($conf_file) -> mode);
+    if ($mode != 0640)
+    {
+	my $message = sprintf("Configuration file '$conf_file' has permissions '%04o', it must have premissions '0640'.", $mode);
+        config_error($message, 0);
+    }
+
+    while(<FD>)
+    {
+        chomp;
+        next if ( /^\s*#/ );
+        next if ( /^\s*$/ );
+        if( ! /^([^=]+)=([^=]+)$/ )
+        {
+            print stderr "Ignoring cruft in $conf_file: '$_'\n" if $is_root;
+    	    next;
+        }
+        my $key = $1;
+        my $val = $2;
+        $key =~ s/^\s*//g;
+        $key =~ s/\s*$//g;
+        $val =~ s/^\s*//g;
+        $val =~ s/\s*$//g;
+    
+        if ($key eq 'api_key')
+        {
+            config_error("Multiple 'api_key' values found.") if ($APIKEY);
+    	    $APIKEY = $val;
+        }
+        elsif ($key eq 'api_id')
+        {
+            config_error("Multiple 'api_id' values found.") if ($APIID);
+    	    $APIID = $val;
+        }
+        elsif ($key eq 'resource_name')
+        {
+            config_error("Multiple 'resource_name' values found.") if ($resource);
+    	    $resource = $val;
+        }
+        elsif ($key eq 'admin_name')
+        {
+            unshift(@admin_names,$val);
+        }
+        elsif ($key eq 'rest_url_base')
+        {
+    	    config_error("Multiple 'rest_url_base' values found.") if ($rest_url);
+    	    $rest_url = $val;
+        }
+        else
+        {
+            print stderr "Ignoring cruft in $conf_file: '$_'\n" if $is_root;
+        }
+    }
+    close FD or die "$!: $conf_file";
+
+    # stop here if missing required values
+    config_error("Unable to find the 'api_id' value.") unless ($APIID);
+    config_error("Unable to find the 'api_key' value.") unless ($APIKEY);
+    config_error("Unable to find the 'resource_name' value.") unless ($resource);
+    config_error("Unable to find the 'rest_url_base' value.") unless ($rest_url);
+
+    # Check if the key is authorized.
+    is_authorized();
+
+    # Check if the resource specified in the configuration file is valid.
+    my @res = check_resource($resource);
+}
+
+# Show the root user the error message for the configuration file.
+# Show other users a generic message. Exit in either case.
+sub config_error
+{
+    my $num_parameters = @_ ;
+    my($error_message) = shift;
+    my($message) = "";
+
+    if ($is_root)
+    {
+	# If 2 parameters are passed don't show the extra message.
+        if ($num_parameters == 2)
+        {
+            $message = $error_message;
+        }
+	else
+	{
+            $message = $error_message . "\nThe configuration file ($conf_file) should have one entry for each of the following:\n" .
+                "\tapi_key\n\tapi_id\n\tresource_name\n\trest_url_base\n";
+	}
+        die ($message);
+    }
+    else
+    {
+        error("There is a problem with the configuration file.\nPlease contact your system administrator.");
+    }
+}
+
+# Check if the application is authorized.
+sub is_authorized
+{
+    # Add the user's name and other information to be logged as parameters to the auth_test call.
+    # The extra parameters are ignored by auth_test and are just put into the log file on the database host.
+    my($uid) = $ENV{LOGNAME};
+    my $epoch_time = time();
+    my $hostname = hostname();
+
+    # construct a rest url and fetch it
+    my $url = sprintf("%s/xdusage/auth_test?USER=%s&TIME=%s&HOST=%s&COMMAND_LINE=%s", $rest_url, $uid, $epoch_time, $hostname, $command_line);
+
+    # using LWP since it's available by default in most cases
+    my $ua = LWP::UserAgent->new();
+    $ua->default_header('XA-AGENT' => 'xdusage');
+    $ua->default_header('XA-RESOURCE' => $APIID);
+    $ua->default_header('XA-API-KEY' => $APIKEY);
+    my $resp = $ua->get($url);
+
+    # check for bad response code here
+    if (!defined $resp || $resp->code != 200)
+    {
+	if ($is_root)
+        {
+            printf stderr <<EOF;
+This script needs to be authorized with the XDCDB-API.
+An API-KEY already exists in the configuration file ($conf_file).
+If you still have the HASH that was generated with this key
+you can use it to register xdusage with the API.
+Otherwise, you will need to enter the new API_KEY into the configuration file.
+
+In either case, send the following e-mail to help\@xsede.org to register with the hash and key.
+
+Subject: XDCDB API-KEY installation request
+Please install the following HASH for agent xdusage on resource '$APIID'.
+
+<Replace this with the HASH you are using>
+EOF
+        }
+        else
+        {
+	    printf("xdusage is not authorized to query the XDCDB-API.\nPlease contact your system administrator.\n");
+        }
+
+        # Show full error message in case it is something other than authorization.
+	die(sprintf("Failure: %s returned erroneous status: %s", $url, $resp->status_line));
+    }
+}
+
+# Allow a root user to create and setup the missing configuration file.
+sub setup_conf
+{
+    # Check that user xdusage exists, or prompt the admin to create it.
+    if (!getpwnam("xdusage"))
+    {
+        print stderr "Required user 'xdusage' does not exist on this system.\n";
+        die "Create the user and run this script again.\n";
+    }
+
+    # Create the empty configuration file in /etc.
+    my($hostname) = hostname;
+    $conf_file = "/etc/xdusage.conf";
+    sysopen (CFD, $conf_file, O_WRONLY|O_CREAT, 0640) or die "$!: $conf_file\n";
+
+    print CFD <<EOF;
+# Select an XDCDB ResourceName from https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+# They are stored as "ResourceID" on the output from that page.
+# This is the resource that usage will be reported on by default.
+resource_name     = <YOUR_XDCDB_RESOURCE_NAME>
+
+api_id            = $hostname
+
+# Instructions for generating the API key and hash and for getting the has configured in the API are at:
+#     https://xsede-xdcdb-api.xsede.org/
+# Click on the "Generate API-KEY" link and follow the instructions.
+api_key           = <YOUR_API_KEY>
+
+rest_url_base     = https://xsede-xdcdb-api.xsede.org/
+
+# List the login name of admins who can impersonate other users; one per line.
+# admin_name = fabio
+EOF
+
+    close CFD or die "$!: $conf_file\n";
+
+    # Change its ownership to root/xdusage
+    my $uid = getpwnam "root";
+    my $gid = getgrnam "xdusage";
+    chown $uid, $gid, $conf_file or die "$!: $conf_file\n";
+
+    die "\nA configuration file has been created at '$conf_file'.\nFollow the instructions in the file to finish the configuration process.\n";
+}
+
+# Check that the /etc/sudoers file is set up correctly and
+# warn the administrator if it is not.
+sub check_sudo
+{
+    my($found) = 0;
+    open(my $fh, '-|', 'sudo -l -n | grep xdusage') or die $!;
+    while (my $line = <$fh> && !$found)
+    {
+        $found = 1;
+    }
+
+    if (!$found)
+    {
+	print stderr "The /etc/sudoers file is not set up correctly.\n";
+
+	if ($is_root)
+	{
+            print stderr <<EOF;
+The /etc/sudoers file needs to contain the following lines in order for non-root users to run correctly:
+\t\$Default!install_dir/xdusage runas_default=xdusage
+\t\$Default!install_dir/xdusage env_keep=\"USER\"
+\tALL  ALL=(xdusage) NOPASSWD:$install_dir/xdusage
+
+EOF
+	    exit(1);
+	}
+	else
+	{
+	    die "Please contact your system administrator.\n";
+	}
+    }
+}
+
+# Check if the named resource is in the active XSEDE resource list.
+sub check_resource
+{
+    my($resource) = shift;
+
+    # construct a rest url and fetch it
+    # don't forget to uri escape these things in case one has funny
+    # characters
+    my $url = sprintf("%s/xdusage/v1/resources/%s", $rest_url, uri_escape($resource));
+    my $result = json_get($url);
+
+    unless (@{$result->{result}})
+    {
+        if ($is_root)
+        {
+            printf stderr <<EOF;
+The resource_name '$resource' specified in the configuration file '$conf_file'
+is not listed as a current XSEDE system.
+Information may not exist in the XSEDE central accounting database for this resource.
+
+Current XSEDE resources are listed at:
+https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+EOF
+        } else {
+            printf stderr <<EOF;
+The resource_name '$resource' specified in the configuration file is not listed as a current XSEDE system.
+Information may not exist in the XSEDE central accounting database for this resource.
+Please contact your system administrator.
+
+You can specify a different resource with the "-r" option.
+
+Current XSEDE resources are listed at:
+https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+EOF
+        }
+    }
 }
 
 # returns a list of hashref of user info for a given username at a given resource
@@ -708,6 +971,7 @@ sub get_dates
 {
     my($date);
     my($sdate, $edate, $edate2);
+    my($today) = ParseDate('today');
 
     $date = $options{'s'};
     if ($date)
@@ -716,10 +980,12 @@ sub get_dates
 	error ("$date -- not a valid date") unless($sdate);
     }
 
+    error ("The start date (-s) can't be in the future.") if ($sdate && $sdate > $today);
+
     $date = $options{'e'};
     if ($date)
     {
-	error ("-e requires -s") unless ($sdate);
+	error ("The end date option (-e) requires that a start date (-s) be specified.") unless ($sdate);
     	$edate = ParseDate($date);
 	error ("$date -- not a valid date") unless($edate);
 	$edate2 = DateCalc ($edate, "+ 1 day");
@@ -729,7 +995,7 @@ sub get_dates
     $edate  = UnixDate($edate,  "%Y-%m-%d") if $edate;
     $edate2 = UnixDate($edate2, "%Y-%m-%d") if $edate2;
 
-    error ("end date can't precede start date") if ($sdate && $edate && $sdate > $edate);
+    error ("The end date (-e) can't precede the start date (-s).") if ($sdate && $edate && $sdate > $edate);
 
     ($sdate, $edate, $edate2);
 }

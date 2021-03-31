@@ -27,5 +27,5 @@ to see all the projects that mshapiro is on, to see if there are some projects t
 
 NOTES:
 
-If the user running xdusage is not listed in xdusage.admins, xdusage will ignore the $USER setting.
+If the user running xdusage is not listed as an admin in xdusage.conf, xdusage will ignore the $USER setting.
 Also, setting the USER environment variable is distinctly different from using the -u option to xdusage. 

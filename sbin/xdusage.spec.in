@@ -18,6 +18,9 @@ Requires:    perl(Getopt::Long)
 Requires:    perl(LWP::UserAgent)
 Requires:    perl(IO::Socket::SSL)
 Requires:    perl(URI::Escape)
+Requires:    perl(Fcntl)
+Requires:    perl(File::stat)
+Requires:    perl(Sys::Hostname)
 
 Requires(pre): shadow-utils
 
