@@ -9,7 +9,7 @@
 #
 
 
-# XDCDB ResourceName from https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+# XDCDB ResourceName from https://info.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/?format=html;sort=ResourceID
 resource_name     = <YOUR_XDCDB_RESOURCE_NAME>
 api_id            = <YOUR_XDCDB_RESOURCE_NAME>
 api_key           = <YOUR_API_KEY>

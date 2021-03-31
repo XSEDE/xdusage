@@ -1,0 +1,2 @@
+2.1-2 2021-03-31 JP Navarro
+- Fix active resources URL to https://info.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/?format=html;sort=ResourceID

@@ -391,7 +391,7 @@ sub setup_conf
     sysopen (CFD, $conf_file, O_WRONLY|O_CREAT, 0640) or die "$!: $conf_file\n";
 
     print CFD <<EOF;
-# Select an XDCDB ResourceName from https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+# Select an XDCDB ResourceName from https://info.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/?format=html;sort=ResourceID
 # They are stored as "ResourceID" on the output from that page.
 # This is the resource that usage will be reported on by default.
 resource_name     = <YOUR_XDCDB_RESOURCE_NAME>
@@ -473,7 +473,7 @@ is not listed as a current XSEDE system.
 Information may not exist in the XSEDE central accounting database for this resource.
 
 Current XSEDE resources are listed at:
-https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+https://info.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/?format=html;sort=ResourceID
 EOF
         } else {
             printf stderr <<EOF;
@@ -484,7 +484,7 @@ Please contact your system administrator.
 You can specify a different resource with the "-r" option.
 
 Current XSEDE resources are listed at:
-https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+https://info.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/?format=html;sort=ResourceID
 EOF
         }
     }

@@ -85,7 +85,7 @@ R5) An API key needs to be generated and configured in the xdusage.conf file. A 
     A resource_name and api_id also needs to be configured in the xdusage.conf file. The resource_name is used by xdusage
     to map usernames to people in the XDCDB. The api_id (along with the api_key) are used to authenticate xdusage to the
     API. Both of these values should be the same and must match the XDCDB Resource Name as listed at:
-    https://info1.dyn.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/
+    https://info.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/?format=html;sort=ResourceID
     
     An example xdusage.conf file with the information needed by the API:
       resource_name     = ranger.tacc.teragrid
