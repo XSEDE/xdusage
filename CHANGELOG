@@ -1,2 +1,5 @@
+3.0-0 2021-04-12 JP Navarro
+- Migrate from SVN to GitHub, add XSEDE Licensing files, bump to 3.0-0 for Michaels new XDCDB work
+
 2.1-2 2021-03-31 JP Navarro
 - Fix active resources URL to https://info.xsede.org/wh1/warehouse-views/v1/resources-xdcdb-active/?format=html;sort=ResourceID

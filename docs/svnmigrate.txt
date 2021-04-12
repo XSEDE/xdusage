@@ -1,0 +1,5 @@
+ git svn clone --stdlayout --authors-file=./svnauthors.txt  https://software.xsede.org/svn/xci/source/xdusage/
+git remote add origin https://github.com/XSEDE/xdusage.git
+
+git push -u origin master
+
