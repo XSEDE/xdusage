@@ -71,7 +71,7 @@ check_config();
 
 # Get command line options.
 my(%options) = ();
-usage() unless 
+usage() unless
  GetOptions (\%options,
             "p=s@",
             "r=s@",
@@ -85,12 +85,12 @@ usage() unless
             "pa",
             "ia",
             "ip",
-	    "zp",
-	    "za",
-	    "nc",
+            "zp",
+            "za",
+            "nc",
             "h",
-	    "debug",
-	    "V",
+            "debug",
+            "V",
             ) ;
 
 usage() if (@ARGV);
@@ -105,7 +105,7 @@ my($is_admin) = is_admin($logname);
 my($xuser) = ($is_admin && $ENV{USER}) ? $ENV{USER} : $logname;
 
 
-my($user)     = get_user($xuser);
+my($user)      = get_user($xuser);
 my(@resources) = get_resources();
 
 my(@users)     = get_users();
@@ -142,7 +142,7 @@ sub json_get($)
     # check for bad response code here
     if (!defined $resp || $resp->code != 200)
     {
-	die(sprintf("Failure: %s returned erroneous status: %s", $url, $resp->status_line));
+        die(sprintf("Failure: %s returned erroneous status: %s", $url, $resp->status_line));
     }
 
     # do stuff with the body
@@ -151,13 +151,13 @@ sub json_get($)
     # not json? this is fatal too.
     if (!defined $json)
     {
-	die(sprintf("Failure: %s returned non-JSON output: %s\n", $url, $resp->content));
+        die(sprintf("Failure: %s returned non-JSON output: %s\n", $url, $resp->content));
     }
 
     # every response must contain a 'result' field.
     if (!defined $json->{'result'})
     {
-	die(sprintf("Failure: %s returned invalid JSON (missing result): %s\n", $url, $resp->content));
+        die(sprintf("Failure: %s returned invalid JSON (missing result): %s\n", $url, $resp->content));
     }
 
     return $json;
@@ -170,7 +170,7 @@ sub is_admin()
 
     foreach (@admin_names)
     {
-	$is_admin = 1 if ($user eq $_);
+        $is_admin = 1 if ($user eq $_);
     }
 
     $is_admin;
@@ -182,11 +182,11 @@ sub is_admin()
 sub check_config
 {
     # list of possible config file locations
-    my(@conf_file_list) = ('/etc/xdusage.conf', 
-    	      '/var/secrets/xdusage.conf', 
-    	      "$install_dir/../etc/xdusage.conf",
-    	      ) ;
-    
+    my(@conf_file_list) = ('/etc/xdusage.conf',
+              '/var/secrets/xdusage.conf',
+              "$install_dir/../etc/xdusage.conf",
+              ) ;
+
     # use the first one found.
     foreach my $c (@conf_file_list)
     {
@@ -203,14 +203,14 @@ sub check_config
     {
         if ($is_root)
         {
-    	    print stderr "The configuration file could not be located in:\n";
-    	    print stderr  join("\n  ", @conf_file_list) .  "\n";
-    
-    	    setup_conf();
+            print stderr "The configuration file could not be located in:\n";
+            print stderr  join("\n  ", @conf_file_list) .  "\n";
+
+            setup_conf();
         }
         else
         {
-    	    die "Unable to find the configuration file.\nPlease contact your system administrator.\n";
+            die "Unable to find the configuration file.\nPlease contact your system administrator.\n";
         }
     }
 
@@ -221,20 +221,20 @@ sub check_config
     my $sb = stat($conf_file);
     if ($sb->uid != getpwnam "root")
     {
-        config_error("Configuration file '$conf_file' must be owned by user 'root'.", 0);
+        #config_error("Configuration file '$conf_file' must be owned by user 'root'.", 0);
     }
 
     if ($sb->gid != getgrnam "xdusage")
     {
-        config_error("Configuration file '$conf_file' must be owned by group 'xdusage'.", 0);
+        #config_error("Configuration file '$conf_file' must be owned by group 'xdusage'.", 0);
     }
 
     # Check that the configuration file has the correct permissions.
     my $mode = S_IMODE(stat($conf_file) -> mode);
     if ($mode != 0640)
     {
-	my $message = sprintf("Configuration file '$conf_file' has permissions '%04o', it must have premissions '0640'.", $mode);
-        config_error($message, 0);
+        my $message = sprintf("Configuration file '$conf_file' has permissions '%04o', it must have premissions '0640'.", $mode);
+        #config_error($message, 0);
     }
 
     while(<FD>)
@@ -245,7 +245,7 @@ sub check_config
         if( ! /^([^=]+)=([^=]+)$/ )
         {
             print stderr "Ignoring cruft in $conf_file: '$_'\n" if $is_root;
-    	    next;
+            next;
         }
         my $key = $1;
         my $val = $2;
@@ -253,21 +253,21 @@ sub check_config
         $key =~ s/\s*$//g;
         $val =~ s/^\s*//g;
         $val =~ s/\s*$//g;
-    
+
         if ($key eq 'api_key')
         {
             config_error("Multiple 'api_key' values found.") if ($APIKEY);
-    	    $APIKEY = $val;
+            $APIKEY = $val;
         }
         elsif ($key eq 'api_id')
         {
             config_error("Multiple 'api_id' values found.") if ($APIID);
-    	    $APIID = $val;
+            $APIID = $val;
         }
         elsif ($key eq 'resource_name')
         {
             config_error("Multiple 'resource_name' values found.") if ($resource);
-    	    $resource = $val;
+            $resource = $val;
         }
         elsif ($key eq 'admin_name')
         {
@@ -275,8 +275,8 @@ sub check_config
         }
         elsif ($key eq 'rest_url_base')
         {
-    	    config_error("Multiple 'rest_url_base' values found.") if ($rest_url);
-    	    $rest_url = $val;
+            config_error("Multiple 'rest_url_base' values found.") if ($rest_url);
+            $rest_url = $val;
         }
         else
         {
@@ -308,16 +308,16 @@ sub config_error
 
     if ($is_root)
     {
-	# If 2 parameters are passed don't show the extra message.
+        # If 2 parameters are passed don't show the extra message.
         if ($num_parameters == 2)
         {
             $message = $error_message;
         }
-	else
-	{
+        else
+        {
             $message = $error_message . "\nThe configuration file ($conf_file) should have one entry for each of the following:\n" .
                 "\tapi_key\n\tapi_id\n\tresource_name\n\trest_url_base\n";
-	}
+        }
         die ($message);
     }
     else
@@ -348,7 +348,7 @@ sub is_authorized
     # check for bad response code here
     if (!defined $resp || $resp->code != 200)
     {
-	if ($is_root)
+        if ($is_root)
         {
             printf stderr <<EOF;
 This script needs to be authorized with the XDCDB-API.
@@ -367,11 +367,11 @@ EOF
         }
         else
         {
-	    printf("xdusage is not authorized to query the XDCDB-API.\nPlease contact your system administrator.\n");
+            printf("xdusage is not authorized to query the XDCDB-API.\nPlease contact your system administrator.\n");
         }
 
         # Show full error message in case it is something other than authorization.
-	die(sprintf("Failure: %s returned erroneous status: %s", $url, $resp->status_line));
+        die(sprintf("Failure: %s returned erroneous status: %s", $url, $resp->status_line));
     }
 }
 
@@ -432,10 +432,10 @@ sub check_sudo
 
     if (!$found)
     {
-	print stderr "The /etc/sudoers file is not set up correctly.\n";
+        print stderr "The /etc/sudoers file is not set up correctly.\n";
 
-	if ($is_root)
-	{
+        if ($is_root)
+        {
             print stderr <<EOF;
 The /etc/sudoers file needs to contain the following lines in order for non-root users to run correctly:
 \t\$Default!install_dir/xdusage runas_default=xdusage
@@ -443,12 +443,12 @@ The /etc/sudoers file needs to contain the following lines in order for non-root
 \tALL  ALL=(xdusage) NOPASSWD:$install_dir/xdusage
 
 EOF
-	    exit(1);
-	}
-	else
-	{
-	    die "Please contact your system administrator.\n";
-	}
+            exit(1);
+        }
+        else
+        {
+            die "Please contact your system administrator.\n";
+        }
     }
 }
 
@@ -460,7 +460,7 @@ sub check_resource
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/resources/%s", $rest_url, uri_escape($resource));
+    my $url = sprintf("%s/xdusage/v2/resources/%s", $rest_url, uri_escape($resource));
     my $result = json_get($url);
 
     unless (@{$result->{result}})
@@ -491,27 +491,44 @@ EOF
 }
 
 # returns a list of hashref of user info for a given username at a given resource
-# resource defaults to config param resource_name; if second arg evaluates 
-# to true, use the portal as the resource.
+# resource defaults to config param resource_name
+#
+# if second arg evaluates to true, search by portal_username
+
 sub get_user
 {
     my($username, $portal) = @_;
-    my($rs) = $portal ? 'portal.teragrid' : $resource;
+    my($url, $result);
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/people/by_username/%s/%s", 
-      $rest_url, 
-      uri_escape($rs), 
-      uri_escape($username));
-    my $result = json_get($url);
+    if ($portal)
+    {
+        $url = sprintf("%s/xdusage/v2/people/by_username/%s/%s",
+          $rest_url,
+          uri_escape($resource),
+          uri_escape($username));
+    }
+    else
+    {
+        $url = sprintf("%s/xdusage/v2/people/by_portal_username/%s",
+          $rest_url,
+          uri_escape($username));
+    }
+    $result = json_get($url);
 
     # there should be only one row returned here...
     if (scalar @{$result->{result}} > 1)
     {
-	die(sprintf("Multiple user records for user %s on resource %s\n", 
-	  $username, $rs));
+        if($portal)
+        {
+            die(sprintf("Multiple user records for portal username %s\n", $username));
+        }
+        else
+        {
+            die(sprintf("Multiple user records for user %s on resource %s\n", $username, $resource));
+        }
     }
 
     return @{$result->{result}};
@@ -526,8 +543,8 @@ sub get_users_by_last_name
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/people/by_lastname/%s", 
-      $rest_url, 
+    my $url = sprintf("%s/xdusage/v2/people/by_lastname/%s",
+      $rest_url,
       uri_escape($name));
     my $result = json_get($url);
 
@@ -545,15 +562,15 @@ sub get_users
 
     foreach $name (option_list('u'))
     {
-	@u = (get_user($name), get_users_by_last_name($name));
-	error("user $name not found") unless (@u);
+        @u = (get_user($name), get_users_by_last_name($name));
+        error("user $name not found") unless (@u);
         push @users, @u;
     }
 
     foreach $name (option_list('up'))
     {
         @u = get_user ($name, 1);
-	error("user $name not found") unless (@u);
+        error("user $name not found") unless (@u);
         push @users, @u;
     }
 
@@ -571,24 +588,24 @@ sub get_resources
 
     foreach $name (option_list('r'))
     {
-	# since nobody remembers the full name, do a search based on
-	# the subcomponents provided
-	$pat = $name;
-	$pat = "$name.%" unless ($name =~ /[.%]/);
+        # since nobody remembers the full name, do a search based on
+        # the subcomponents provided
+        $pat = $name;
+        $pat = "$name.%" unless ($name =~ /[.%]/);
 
-	# create a rest url and fetch
-	$url = sprintf("%s/xdusage/v1/resources/%s",
-	  $rest_url,
-	  uri_escape($pat));
-	my $result = json_get($url);
+        # create a rest url and fetch
+        $url = sprintf("%s/xdusage/v2/resources/%s",
+          $rest_url,
+          uri_escape($pat));
+        my $result = json_get($url);
 
-	$any = 0;
-	foreach $r (@{$result->{result}})
-	{
-	    push @resources, $r->{resource_id};
-	    $any = 1;
-	}
-	error ("$name - resource not found") unless ($any);
+        $any = 0;
+        foreach $r (@{$result->{result}})
+        {
+            push @resources, $r->{resource_id};
+            $any = 1;
+        }
+        error ("$name - resource not found") unless ($any);
     }
 
     @resources;
@@ -611,71 +628,73 @@ sub get_projects
     # (grant number, charge number)
     if (scalar @plist)
     {
-	unshift(@urlparams, sprintf("projects=%s",
-	  uri_escape(lc(join(',', @plist)))));
+        unshift(@urlparams, sprintf("projects=%s",
+          uri_escape(lc(join(',', @plist)))));
     }
     # If not filtering by project list, show all non-expired
     else
     {
-	unshift(@urlparams, "not_expired");
+        unshift(@urlparams, "not_expired");
     }
 
-    # non-su users are filtered by person_id 
+    # non-su users are filtered by person_id
     # so they can't see someone else's project info
     if (!$is_su)
     {
-	unshift(@urlparams, sprintf("person_id=%s", 
-	  uri_escape($person_id)));
+        unshift(@urlparams, sprintf("person_id=%s",
+          uri_escape($person_id)));
     }
 
     # filter by active
     if (option_flag('ip'))
     {
-	unshift(@urlparams, "active_only");
+        unshift(@urlparams, "active_only");
     }
 
     # filter by resources
     if (scalar @resources)
     {
-	unshift(@urlparams, sprintf("resource_id=%s",
-	    uri_escape(join(',',@resources))));
+        unshift(@urlparams, sprintf("resource_id=%s",
+            uri_escape(join(',',@resources))));
     }
 
     # construct a rest url and fetch it
     # input has already been escaped
-    my $url = sprintf("%s/xdusage/v1/projects?%s", 
-      $rest_url, 
+    my $url = sprintf("%s/xdusage/v2/projects?%s",
+      $rest_url,
       join('&', @urlparams));
     my $result = json_get($url);
 
     # return an empty array if no results
     if (scalar @{$result->{result}} < 1)
     {
-	return ();
+        return ();
     }
 
     return  @{$result->{result}};
 }
 
-# return curent allocation info for account_id on resource_id
-# returns previous allocation info if 3rd argument evaluates to true.
-sub get_allocation
+# return current request_resource info for project_id on resource_id
+# returns previous request_resource info if 3rd argument evaluates to true.
+sub get_request_resource
 {
-    my($account_id, $resource_id, $previous) = @_;
+    my($project_id, $resource_id, $previous) = @_;
 
     my($prevstr) = "current";
     if ($previous)
     {
-	$prevstr = "previous";
+        $prevstr = "previous";
     }
 
     # construct a rest url and fetch it
     # don't forget to escape input...
-    my $url = sprintf("%s/xdusage/v1/allocations/%s/%s/%s", 
-      $rest_url, 
-      uri_escape($account_id),
-      uri_escape($resource_id),
-      uri_escape($prevstr));
+    my $url = sprintf("%s/xdusage/v2/request_resource/%s/%s/%s",
+      $rest_url,
+      uri_escape($prevstr),
+      uri_escape($project_id),
+      uri_escape($resource_id)
+      );
+
     my $result = json_get($url);
 
     # the caller checks for undef, so we're good to go.
@@ -688,10 +707,10 @@ sub get_allocation
 sub get_job_attributes
 {
     my($job_id) = shift;
-    
+
     $job_id = uri_escape($job_id);
 
-    my $url = sprintf("%s/xdusage/v1/jobs/attributes/%s", 
+    my $url = sprintf("%s/xdusage/v2/jobs/attributes/%s",
       $rest_url,
       $job_id);
     my $result = json_get($url);
@@ -713,29 +732,29 @@ sub get_accounts
     # filter by personid(s)
     if (@users || !(option_flag('a') || $is_su))
     {
-	if (scalar @users)
-	{
-	    unshift(@urlparams, sprintf("person_id=%s",
-	      uri_escape(join(',', map {$_->{person_id}} @users))));
-	}
-	else
-	{
-	    unshift(@urlparams, sprintf("person_id=%s",
-	      uri_escape($person_id)));
-	}
+        if (scalar @users)
+        {
+            unshift(@urlparams, sprintf("person_id=%s",
+              uri_escape(join(',', map {$_->{person_id}} @users))));
+        }
+        else
+        {
+            unshift(@urlparams, sprintf("person_id=%s",
+              uri_escape($person_id)));
+        }
     }
-	 
+
     # filter by active accounts
     if (option_flag('ia'))
     {
-	unshift(@urlparams, "active_only");
+        unshift(@urlparams, "active_only");
     }
 
     # construct a rest url and fetch it
     # input has already been escaped
-    my $url = sprintf("%s/xdusage/v1/accounts/%s/%s?%s", 
+    my $url = sprintf("%s/xdusage/v2/accounts/%s/%s?%s",
       $rest_url,
-      $project->{account_id},
+      $project->{project_id},
       $project->{resource_id},
       join('&', @urlparams));
     my $result = json_get($url);
@@ -797,7 +816,7 @@ sub show_project
 {
     my($project) = shift;
     my(@a, $a, $w, $name);
-    my($x, $amt, $alloc);
+    my($x, $amt, $rr);
     my($s, $e);
     my($username);
     my(@j, @cd, $job_id, $id);
@@ -809,126 +828,128 @@ sub show_project
 
     if ($sdate or $edate2)
     {
-    	$x = get_usage_by_dates ($project->{account_id}, $project->{resource_id});
-	$amt = $x->{su_used} || 0;
-	return 0 if ($amt == 0 && option_flag('zp'));
+        $x = get_usage_by_dates ($project->{project_id}, $project->{resource_id});
+        $amt = $x->{su_used} || 0;
+        return 0 if ($amt == 0 && option_flag('zp'));
 
-	# $s = $x->{start_date} || $sdate;
-	# $e = $x->{end_date} || $edate;
-	$s = $sdate;
-	$e = $edate;
-	# $s = $sdate || $x->{start_date};
-	# $e = $edate || $x->{end_date};
+        # $s = $x->{start_date} || $sdate;
+        # $e = $x->{end_date} || $edate;
+        $s = $sdate;
+        $e = $edate;
+        # $s = $sdate || $x->{start_date};
+        # $e = $edate || $x->{end_date};
 
-    	$x = get_counts_by_dates ($project->{account_id}, $project->{resource_id});
-	$ux = sprintf "Usage Period: %s%s\n Usage=%s %s",
-	       $s ? "$s/" : "thru ",
-	       $e ? "$e" : $today,
-	       fmt_amount($amt),
-	       $x;
+        $x = get_counts_by_dates ($project->{project_id}, $project->{resource_id});
+        $ux = sprintf "Usage Period: %s%s\n Usage=%s %s",
+               $s ? "$s/" : "thru ",
+               $e ? "$e" : $today,
+               fmt_amount($amt),
+               $x;
     }
     else
     {
-    	$alloc = get_allocation ($project->{account_id}, $project->{resource_id}, option_flag('pa'));
-	return 0 unless ($alloc);
-	$amt = $alloc->{su_used};
-	return 0 if ($amt == 0 && option_flag('zp'));
+        $rr = get_request_resource ($project->{project_id}, $project->{resource_id}, option_flag('pa'));
+        return 0 unless ($rr);
+        $amt = $rr->{charges};
+        return 0 if ($amt == 0 && option_flag('zp'));
 
-    	$x = get_counts_on_allocation ($alloc->{allocation_id});
-	$ux = sprintf "Allocation: %s/%s\n Total=%s Remaining=%s Usage=%s %s",
-	        $alloc->{alloc_start},
-	        $alloc->{alloc_end},
-	        fmt_amount($alloc->{su_allocated}), 
-	        fmt_amount($alloc->{su_remaining}),
-	        fmt_amount($amt),
-	        $x;
+        $x = get_counts_on_request_resource ($rr->{request_resource_id});
+        $ux = sprintf "Allocation: %s/%s\n Total=%s Remaining=%s Usage=%s %s",
+                $rr->{start_date},
+                $rr->{end_date},
+                fmt_amount($rr->{allocation}),
+                fmt_amount($rr->{balance}),
+                fmt_amount($amt),
+                $x;
     }
 
     $any = 0;
     foreach $a (@a)
     {
-	$is_pi = $a->{is_pi};
-	$w = $is_pi ? "PI" : "  ";
-	$username = $a->{portal_username};
-	$name = fmt_name ($a->{first_name}, $a->{middle_name}, $a->{last_name});
+        $is_pi = $a->{is_pi};
+        $w = $is_pi ? "PI" : "  ";
+        $username = $a->{portal_username};
+        $name = fmt_name ($a->{first_name}, $a->{middle_name}, $a->{last_name});
 
-	if ($sdate or $edate2)
-	{
-	    $x = get_usage_by_dates ($project->{account_id}, $project->{resource_id}, $a->{person_id});
-	    $amt = $x->{su_used};
-	    $x = get_counts_by_dates ($project->{account_id}, $project->{resource_id}, $a->{person_id});
-	    if (option_flag('j'))
-	    {
-		@j = get_jv_by_dates ($project->{account_id}, $project->{resource_id}, $a->{person_id});
-		@cd = get_cdv_by_dates ($project->{account_id}, $project->{resource_id}, $a->{person_id});
-	    }
-	}
-	else
-	{
-	    $amt = get_usage_on_allocation ($alloc->{allocation_id}, $a->{person_id});
-	    $x = get_counts_on_allocation ($alloc->{allocation_id}, $a->{person_id});
-	    if (option_flag('j'))
-	    {
-		@j = get_jv_on_allocation ($alloc->{allocation_id}, $a->{person_id});
-		@cd = get_cdv_on_allocation ($alloc->{allocation_id}, $a->{person_id});
-	    }
-	}
-	next if ($amt == 0 && option_flag('za'));
-	unless ($any)
-	{
-	    print "Project: $project->{charge_number}";
-	    print "/$project->{resource_name}";
-	    print " status=inactive" unless ($project->{proj_state} eq 'active');
-	    print "\n";
-	    printf "PI: %s\n", fmt_name ($project->{pi_first_name}, $project->{pi_middle_name}, $project->{pi_last_name});
-	    print "$ux\n";
-	    $any = 1;
-	}
+        if ($sdate or $edate2)
+        {
+            $x = get_usage_by_dates ($project->{project_id}, $project->{resource_id}, $a->{person_id});
+            $amt = $x->{su_used};
+            $x = get_counts_by_dates ($project->{project_id}, $project->{resource_id}, $a->{person_id});
+            if (option_flag('j'))
+            {
+                @j = get_jv_by_dates ($project->{project_id}, $project->{resource_id}, $a->{person_id});
+                @cd = get_cdv_by_dates ($project->{project_id}, $project->{resource_id}, $a->{person_id});
+            }
+        }
+        else
+        {
+            $amt = get_usage_on_request_resource ($rr->{request_resource_id}, $a->{person_id});
+            $x = get_counts_on_request_resource ($rr->{request_resource_id}, $a->{person_id});
+            if (option_flag('j'))
+            {
+                @j = get_jv_on_request_resource ($rr->{request_resource_id}, $a->{person_id});
+                @cd = get_cdv_on_request_resource ($rr->{request_resource_id}, $a->{person_id});
+            }
+        }
+        next if ($amt == 0 && option_flag('za'));
+        unless ($any)
+        {
+            print "Project: $project->{charge_number}";
+            print "/$project->{resource_name}";
+            print " status=inactive" unless ($project->{project_state} eq 'active');
+            print "\n";
+            printf "PI: %s\n", fmt_name ($project->{pi_first_name}, $project->{pi_middle_name}, $project->{pi_last_name});
+            print "$ux\n";
+            $any = 1;
+        }
 
-	print " $w $name";
-	print " portal=$username" if (defined $username);
-	print " status=inactive" unless ($a->{acct_state} eq 'active');
-	printf " usage=%s %s\n", fmt_amount ($amt || 0), $x;
+        print " $w $name";
+        print " portal=$username" if (defined $username);
+        print " status=inactive" unless ($a->{account_state} eq 'active');
+        printf " usage=%s %s\n", fmt_amount ($amt || 0), $x;
 
-	foreach $x (@j)
-	{
-	    print "      job";
-	    $id = $x->{local_jobid};
-	    show_value ("id",         $id);
-	    show_value ("jobname",    $x->{jobname});
-	    show_value ("resource",   $x->{job_resource});
-	    show_value ("submit",     fmt_datetime($x->{submit_time}));
-	    show_value ("start",      fmt_datetime($x->{start_time}));
-	    show_value ("end",        fmt_datetime($x->{end_time}));
-	    show_amt   ("memory",     $x->{memory});
-	    show_value ("nodecount",  $x->{nodecount});
-	    show_value ("processors", $x->{processors});
-	    show_value ("queue",      $x->{queue});
-	    show_amt   ("charge",     $x->{adjusted_charge});
-	    print "\n";
-	    if (option_flag('ja'))
-	    {
-		$job_id = $x->{job_id};
-		@jav = get_job_attributes($job_id);
-		foreach $jav (@jav)
-		{
-		    print "        job-attr";
-		    show_value ("id",         $id);
-		    show_value ("name",       $jav->{name});
-		    show_value ("value",      $jav->{value});
-		    print "\n";
-		}
-	    }
-	}
+        foreach $x (@j)
+        {
+            print "      job";
+            $id = $x->{local_job_id};
+            show_value ("id",         $id);
+            show_value ("jobname",    $x->{jobname});
+            show_value ("resource",   $x->{resource_name});
+            show_value ("submit",     fmt_datetime($x->{submit_time}));
+            show_value ("start",      fmt_datetime($x->{start_time}));
+            show_value ("end",        fmt_datetime($x->{end_time}));
+            show_value ("cputime",    $x->{cpu_time});
+            show_amt   ("memory",     $x->{memory});
+            show_value ("nodecount",  $x->{nodecount});
+            show_value ("processors", $x->{processors});
+            show_value ("queue",      $x->{queue});
+            show_value ("walltime",   $x->{wall_time});
+            show_amt   ("charge",     $x->{charge});
+            print "\n";
+            if (option_flag('ja'))
+            {
+                $job_id = $x->{job_id};
+                @jav = get_job_attributes($job_id);
+                foreach $jav (@jav)
+                {
+                    print "        job-attr";
+                    show_value ("id",         $id);
+                    show_value ("name",       $jav->{name});
+                    show_value ("value",      $jav->{value});
+                    print "\n";
+                }
+            }
+        }
 
-	foreach $x (@cd)
-	{
-	    printf "     %s", $x->{type};
-	    printf " resource=%s", $x->{site_resource_name};
-	    printf " date=%s", fmt_datetime($x->{charge_date});
-	    printf " amount=%s", fmt_amount(abs($x->{amount}));
-	    print "\n";
-	}
+        foreach $x (@cd)
+        {
+            printf "     %s", $x->{type};
+            printf " resource=%s", $x->{site_resource_name};
+            printf " date=%s", fmt_datetime($x->{charge_date});
+            printf " amount=%s", fmt_amount(abs($x->{amount}));
+            print "\n";
+        }
 
     }
     print "\n" if ($any);
@@ -976,8 +997,8 @@ sub get_dates
     $date = $options{'s'};
     if ($date)
     {
-    	$sdate = ParseDate($date);
-	error ("$date -- not a valid date") unless($sdate);
+        $sdate = ParseDate($date);
+        error ("$date -- not a valid date") unless($sdate);
     }
 
     error ("The start date (-s) can't be in the future.") if ($sdate && $sdate > $today);
@@ -985,10 +1006,10 @@ sub get_dates
     $date = $options{'e'};
     if ($date)
     {
-	error ("The end date option (-e) requires that a start date (-s) be specified.") unless ($sdate);
-    	$edate = ParseDate($date);
-	error ("$date -- not a valid date") unless($edate);
-	$edate2 = DateCalc ($edate, "+ 1 day");
+        error ("The end date option (-e) requires that a start date (-s) be specified.") unless ($sdate);
+        $edate = ParseDate($date);
+        error ("$date -- not a valid date") unless($edate);
+        $edate2 = DateCalc ($edate, "+ 1 day");
     }
 
     $sdate  = UnixDate($sdate,  "%Y-%m-%d") if $sdate;
@@ -1000,179 +1021,179 @@ sub get_dates
     ($sdate, $edate, $edate2);
 }
 
-# returns number (float) of SUs used by a given person_id on allocation_id
-sub get_usage_on_allocation
+# returns number (float) of SUs used by a given person_id on request_resource_id
+sub get_usage_on_request_resource
 {
-    my($allocation_id, $person_id) = @_;
+    my($request_resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/usage/by_allocation/%s/%s", 
-      $rest_url, 
-      uri_escape($allocation_id), 
+    my $url = sprintf("%s/xdusage/v2/usage/by_request_resource/%s?person_id=%s",
+      $rest_url,
+      uri_escape($request_resource_id),
       uri_escape($person_id));
     my $result = json_get($url);
 
     if ( defined $result->{result}[0]->{su_used} )
     {
-	return $result->{result}[0]->{su_used};
+        return $result->{result}[0]->{su_used};
     }
 
     return 0.0;
 }
 
-# return list of hashref of job info for a given allocation_id and person_id
-sub get_jv_on_allocation
+# return list of hashref of job info for a given request_resource_id and person_id
+sub get_jv_on_request_resource
 {
-    my($allocation_id, $person_id) = @_;
+    my($request_resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/jobs/by_allocation/%s/%s", 
-      $rest_url, 
-      uri_escape($allocation_id), 
+    my $url = sprintf("%s/xdusage/v2/jobs/by_request_resource/%s?person_id=%s",
+      $rest_url,
+      uri_escape($request_resource_id),
       uri_escape($person_id));
     my $result = json_get($url);
 
     # caller expects a list
     if (scalar @{$result->{result}} < 1)
     {
-	return ();
+        return ();
     }
 
     return @{$result->{result}};
 }
 
-# return list of hashref of credits/debits on allocation_id by person_id
-sub get_cdv_on_allocation
+# return list of hashref of credits/debits on request_resource_id by person_id
+sub get_cdv_on_request_resource
 {
-    my($allocation_id, $person_id) = @_;
+    my($request_resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/credits_debits/by_allocation/%s/%s", 
-      $rest_url, 
-      uri_escape($allocation_id), 
+    my $url = sprintf("%s/xdusage/v2/credits_debits/by_request_resource/%s?person_id=%s",
+      $rest_url,
+      uri_escape($request_resource_id),
       uri_escape($person_id));
     my $result = json_get($url);
 
     # caller expects a list
     if (scalar @{$result->{result}} < 1)
     {
-	return ();
+        return ();
     }
 
     return @{$result->{result}};
 }
 
-# return list of hashref of job info for a given account_id, resource_id,
+# return list of hashref of job info for a given project_id, resource_id,
 # and person_id bounded by dates
 sub get_jv_by_dates
 {
-    my($account_id, $resource_id, $person_id) = @_;
+    my($project_id, $resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/jobs/by_dates/%s/%s/%s/%s/%s", 
-      $rest_url, 
-      uri_escape($account_id), 
+    my $url = sprintf("%s/xdusage/v2/jobs/by_dates/%s/%s/%s/%s/%s",
+      $rest_url,
+      uri_escape($project_id),
       uri_escape($resource_id),
-      uri_escape($person_id),
       uri_escape($sdate),
-      uri_escape(get_enddate()));
+      uri_escape(get_enddate()),
+      uri_escape($person_id));
     my $result = json_get($url);
 
     # caller expects a list
     if (scalar @{$result->{result}} < 1)
     {
-	return ();
+        return ();
     }
 
     return @{$result->{result}};
 }
 
-# return a list of hashref of credit/debit info given account_id, resource_id,
+# return a list of hashref of credit/debit info given project_id, resource_id,
 # person_id bounded by dates
 sub get_cdv_by_dates
 {
-    my($account_id, $resource_id, $person_id) = @_;
+    my($project_id, $resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/credits_debits/by_dates/%s/%s/%s/%s/%s", 
-      $rest_url, 
-      uri_escape($account_id), 
+    my $url = sprintf("%s/xdusage/v2/credits_debits/by_dates/%s/%s/%s/%s?person_id=%s",
+      $rest_url,
+      uri_escape($project_id),
       uri_escape($resource_id),
-      uri_escape($person_id),
       uri_escape($sdate),
-      uri_escape(get_enddate()));
+      uri_escape(get_enddate()),
+      uri_escape($person_id));
     my $result = json_get($url);
 
     # caller expects a list
     if (scalar @{$result->{result}} < 1)
     {
-	return ();
+        return ();
     }
 
     return @{$result->{result}};
 }
 
-# return a hashref of usage info given account_id, resource_id,
+# return a hashref of usage info given project_id, resource_id,
 # and bounded by date
 # optionally filtered by person_id
 sub get_usage_by_dates
 {
-    my($account_id, $resource_id, $person_id) = @_;
+    my($project_id, $resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/usage/by_dates/%s/%s/%s/%s", 
-      $rest_url, 
-      uri_escape($account_id), 
+    my $url = sprintf("%s/xdusage/v2/usage/by_dates/%s/%s/%s/%s",
+      $rest_url,
+      uri_escape($project_id),
       uri_escape($resource_id),
       uri_escape($sdate),
       uri_escape(get_enddate()));
     if ($person_id)
     {
-	$url .= sprintf("?person_id=%s", uri_escape($person_id));
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
     }
     my $result = json_get($url);
 
     # caller expects just a hashref
     if ( scalar @{$result->{result}} < 1 )
     {
-	return {};
+        return {};
     }
 
     return $result->{result}[0];
 }
 
-# return a string of credit/debit counts by type for a given account_id
+# return a string of credit/debit counts by type for a given project_id
 # and resource_id, bounded by dates
 # optionally filtered by person_id
 # format is space-delmited, type=count[ ...]
 sub get_counts_by_dates
 {
-    my($account_id, $resource_id, $person_id) = @_;
+    my($project_id, $resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/counts/by_dates/%s/%s/%s/%s", 
-      $rest_url, 
-      uri_escape($account_id), 
+    my $url = sprintf("%s/xdusage/v2/counts/by_dates/%s/%s/%s/%s",
+      $rest_url,
+      uri_escape($project_id),
       uri_escape($resource_id),
       uri_escape($sdate),
       uri_escape(get_enddate()));
     if ($person_id)
     {
-	$url .= sprintf("?person_id=%s", uri_escape($person_id));
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
     }
     my $result = json_get($url);
 
@@ -1184,17 +1205,17 @@ sub get_counts_by_dates
     my $lowercase = $person_id ? 1 : 0;
     foreach my $x (@{$result->{result}})
     {
-    	($type, $n) = ($x->{type}, $x->{n});
-	if ($type eq 'job')
-	{
-	    $j = $n
-	}
-	else
-	{
-	    $type .= 's' unless ($type eq 'storage');
-	    $type = ucfirst($type) unless ($lowercase);
-	    push @counts, "$type=$n";
-	}
+        ($type, $n) = ($x->{type}, $x->{n});
+        if ($type eq 'job')
+        {
+            $j = $n
+        }
+        else
+        {
+            $type .= 's' unless ($type eq 'storage');
+            $type = ucfirst($type) unless ($lowercase);
+            push @counts, "$type=$n";
+        }
     }
     $type = $lowercase ? 'jobs' : 'Jobs';
 
@@ -1203,22 +1224,22 @@ sub get_counts_by_dates
     "@counts";
 }
 
-# return a string of credit/debit counts by type for a given allocation_id
+# return a string of credit/debit counts by type for a given request_resource_id
 # optionally filtered by person_id
 # format is space-delmited, type=count[ ...]
-sub get_counts_on_allocation
+sub get_counts_on_request_resource
 {
-    my($allocation_id, $person_id) = @_;
+    my($request_resource_id, $person_id) = @_;
 
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v1/counts/by_allocation/%s", 
-      $rest_url, 
-      uri_escape($allocation_id));
+    my $url = sprintf("%s/xdusage/v2/counts/by_request_resource/%s",
+      $rest_url,
+      uri_escape($request_resource_id));
     if ($person_id)
     {
-	$url .= sprintf("?person_id=%s", uri_escape($person_id));
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
     }
     my $result = json_get($url);
 
@@ -1230,17 +1251,17 @@ sub get_counts_on_allocation
     my $lowercase = $person_id ? 1 : 0;
     foreach my $x (@{$result->{result}})
     {
-    	($type, $n) = ($x->{type}, $x->{n});
-	if ($type eq 'job')
-	{
-	    $j = $n
-	}
-	else
-	{
-	    $type .= 's' unless ($type eq 'storage');
-	    $type = ucfirst($type) unless ($lowercase);
-	    push @counts, "$type=$n";
-	}
+        ($type, $n) = ($x->{type}, $x->{n});
+        if ($type eq 'job')
+        {
+            $j = $n
+        }
+        else
+        {
+            $type .= 's' unless ($type eq 'storage');
+            $type = ucfirst($type) unless ($lowercase);
+            push @counts, "$type=$n";
+        }
     }
     $type = $lowercase ? 'jobs' : 'Jobs';
 
@@ -1258,11 +1279,11 @@ sub get_enddate
 {
     if (!$edate2)
     {
-	return UnixDate(DateCalc(ParseDate('today'), "+ 1 day"), "%Y-%m-%d");
+        return UnixDate(DateCalc(ParseDate('today'), "+ 1 day"), "%Y-%m-%d");
     }
     else
     {
-	return $edate2;
+        return $edate2;
     }
 }
 
@@ -1273,18 +1294,18 @@ sub fmt_amount
     my($n) = 2;
     if (abs($amt) >= 10000)
     {
-    	$n = 0;
+        $n = 0;
     }
     elsif (abs($amt) >= 1000)
     {
-    	$n = 1;
+        $n = 1;
     }
     my($x) = sprintf ("%.*f", $n, $amt);
 
     while ($x == 0)
     {
-    	$n++;
-	$x = sprintf ("%.*f", $n, $amt);
+        $n++;
+        $x = sprintf ("%.*f", $n, $amt);
     }
     $x =~ s/\.0*$//;
     $x = commas($x) unless (option_flag('nc'));
@@ -1304,10 +1325,10 @@ sub commas
     my($neg) = 0;
     if ($x =~ /^-/)
     {
-    	$neg = 1;
-	$x =~ s/^-//;
+        $neg = 1;
+        $x =~ s/^-//;
     }
-    $x =~ s/\G(\d{1,3})(?=(?:\d\d\d)+(?:\.|$))/$1,/g; 
+    $x =~ s/\G(\d{1,3})(?=(?:\d\d\d)+(?:\.|$))/$1,/g;
     $x = "-" . "$x" if $neg;
-    return $x; 
+    return $x;
 }
