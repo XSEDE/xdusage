@@ -1029,10 +1029,13 @@ sub get_usage_on_request_resource
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v2/usage/by_request_resource/%s?person_id=%s",
+    my $url = sprintf("%s/xdusage/v2/usage/by_request_resource/%s",
       $rest_url,
-      uri_escape($request_resource_id),
-      uri_escape($person_id));
+      uri_escape($request_resource_id));
+    if ($person_id)
+    {
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
+    }
     my $result = json_get($url);
 
     if ( defined $result->{result}[0]->{su_used} )
@@ -1051,10 +1054,13 @@ sub get_jv_on_request_resource
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v2/jobs/by_request_resource/%s?person_id=%s",
+    my $url = sprintf("%s/xdusage/v2/jobs/by_request_resource/%s",
       $rest_url,
-      uri_escape($request_resource_id),
-      uri_escape($person_id));
+      uri_escape($request_resource_id));
+    if ($person_id)
+    {
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
+    }
     my $result = json_get($url);
 
     # caller expects a list
@@ -1074,10 +1080,13 @@ sub get_cdv_on_request_resource
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v2/credits_debits/by_request_resource/%s?person_id=%s",
+    my $url = sprintf("%s/xdusage/v2/credits_debits/by_request_resource/%s",
       $rest_url,
-      uri_escape($request_resource_id),
-      uri_escape($person_id));
+      uri_escape($request_resource_id));
+    if ($person_id)
+    {
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
+    }
     my $result = json_get($url);
 
     # caller expects a list
@@ -1098,13 +1107,16 @@ sub get_jv_by_dates
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v2/jobs/by_dates/%s/%s/%s/%s/%s",
+    my $url = sprintf("%s/xdusage/v2/jobs/by_dates/%s/%s/%s/%s",
       $rest_url,
       uri_escape($project_id),
       uri_escape($resource_id),
       uri_escape($sdate),
-      uri_escape(get_enddate()),
-      uri_escape($person_id));
+      uri_escape(get_enddate()));
+    if ($person_id)
+    {
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
+    }
     my $result = json_get($url);
 
     # caller expects a list
@@ -1125,13 +1137,16 @@ sub get_cdv_by_dates
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    my $url = sprintf("%s/xdusage/v2/credits_debits/by_dates/%s/%s/%s/%s?person_id=%s",
+    my $url = sprintf("%s/xdusage/v2/credits_debits/by_dates/%s/%s/%s/%s",
       $rest_url,
       uri_escape($project_id),
       uri_escape($resource_id),
       uri_escape($sdate),
-      uri_escape(get_enddate()),
-      uri_escape($person_id));
+      uri_escape(get_enddate()));
+    if ($person_id)
+    {
+        $url .= sprintf("?person_id=%s", uri_escape($person_id));
+    }
     my $result = json_get($url);
 
     # caller expects a list
