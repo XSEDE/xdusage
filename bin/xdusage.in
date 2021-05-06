@@ -336,7 +336,13 @@ sub is_authorized
     my $hostname = hostname();
 
     # construct a rest url and fetch it
-    my $url = sprintf("%s/xdusage/auth_test?USER=%s&TIME=%s&HOST=%s&COMMAND_LINE=%s", $rest_url, $uid, $epoch_time, $hostname, $command_line);
+    my $url = sprintf("%s/xdusage/auth_test?USER=%s&TIME=%s&HOST=%s&COMMAND_LINE=%s",
+                 $rest_url,
+                 uri_escape($uid),
+                 uri_escape($epoch_time),
+                 uri_escape($hostname),
+                 uri_escape($command_line)
+        );
 
     # using LWP since it's available by default in most cases
     my $ua = LWP::UserAgent->new();
