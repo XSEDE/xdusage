@@ -856,6 +856,7 @@ sub show_project
     {
         $rr = get_request_resource ($project->{project_id}, $project->{resource_id}, option_flag('pa'));
         return 0 unless ($rr);
+        return 0 unless (defined $rr->{request_resource_id});
         $amt = $rr->{charges};
         return 0 if ($amt == 0 && option_flag('zp'));
 
