@@ -509,7 +509,7 @@ sub get_user
     # construct a rest url and fetch it
     # don't forget to uri escape these things in case one has funny
     # characters
-    if ($portal)
+    unless ($portal)
     {
         $url = sprintf("%s/xdusage/v2/people/by_username/%s/%s",
           $rest_url,
